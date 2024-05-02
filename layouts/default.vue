@@ -1,10 +1,10 @@
-<script setup>
-</script>
+<script setup></script>
 
 <template>
-  <div class="wrap">
-    <NuxtPage />
-  </div>
+	<div class="wrap">
+		<BaseHeader />
+		<slot />
+	</div>
 </template>
 
 <style scoped></style>
