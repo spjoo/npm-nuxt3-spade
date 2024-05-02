@@ -1,9 +1,9 @@
-<script setup></script>
+<script setup>
+</script>
 
 <template>
   <div class="wrap">
-    <BaseHeader />
-    <slot />
+    <NuxtPage />
   </div>
 </template>
 
