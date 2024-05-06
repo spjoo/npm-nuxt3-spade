@@ -22,15 +22,12 @@ const prices = reactive([
   { price: 95000, isActive: false },
   { price: 100000, isActive: false },
 ]);
-const minPrice = Math.min(...prices.map(price => price.price));
 const maxPrice = Math.max(...prices.map(price => price.price));
-const range = maxPrice - minPrice;
 
 let activePrice = ref(prices.filter(price => price.isActive ? price.isActive : prices[0].isActive));
 
-const progressWidth = computed(() => {
-  if (range === 0) return '100%';
-  return `${((activePrice.value - minPrice) / range * 100).toFixed(2)}%`;
+const progressPercentage = computed(() => {
+  return `${activePrice.value / maxPrice * 100}%`;
 });
 
 const handleTooltipPosition = async () => {
@@ -40,7 +37,7 @@ const handleTooltipPosition = async () => {
   const currentbarWidth = currentbar.value.clientWidth;
   const tooltipWidth = tooltip.value.clientWidth;
   // 좌측을 넘을 때
-  if (progressbarWidth <= currentbarWidth + tooltipWidth / 2) {
+  if (progressbarWidth < currentbarWidth + tooltipWidth / 2) {
     tooltipLeft = progressbarWidth - (currentbarWidth + tooltipWidth);
     arrowLeft = -6;
   // 우측을 넘을 때
@@ -84,7 +81,7 @@ const handleButtonChange = (index) => {
     </div>
     <div class="progress-bar_container">
       <div class="progress-bar" ref="progressbar">
-        <div class="current-bar" ref="currentbar" :style="{ '--progress-width': progressWidth }">
+        <div class="current-bar" ref="currentbar" :style="{ '--progress-width': progressPercentage }">
           <span class="tooltip_container" ref="tooltip">
             {{ activePrice }}
             <span class="arrow" ref="arrow"></span>
