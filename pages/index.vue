@@ -127,6 +127,7 @@ function setTooltipPosition() {
   content: "";
   position: absolute;
   left: 50%;
+  bottom: -4px;
   width: 8px;
   height: 8px;
   margin-left: -4px;
