@@ -9,11 +9,12 @@ const tooltip = ref(null);
 const arrow = ref(null);
 const currentbar = ref(null);
 const progressbar = ref(null);
+const minMargin = 6;
 let tooltipLeft = 0;
 let arrowLeft = 0;
 
 const prices = reactive([
-  { price: 0, isActive: false },
+  { price: 0, isActive: true },
   { price: 1000, isActive: false },
   { price: 5000, isActive: false },
   { price: 10000, isActive: false },
@@ -23,8 +24,7 @@ const prices = reactive([
   { price: 100000, isActive: false },
 ]);
 const maxPrice = Math.max(...prices.map(price => price.price));
-
-let activePrice = ref(prices.filter(price => price.isActive ? price.isActive : prices[0].isActive));
+let activePrice = ref(prices.find(price => price.isActive ? price.isActive : prices[0]).price);
 
 const progressPercentage = computed(() => {
   return `${activePrice.value / maxPrice * 100}%`;
@@ -34,23 +34,25 @@ const handleTooltipPosition = async () => {
   await nextTick(); // DOM 업데이트가 처리될 때까지 기다림
   
   const progressbarWidth = progressbar.value.clientWidth;
+  const progressbarPosLeft = progressbar.value.offsetLeft;
   const currentbarWidth = currentbar.value.clientWidth;
-  const tooltipWidth = tooltip.value.clientWidth;
+  const tooltipWidth = tooltip.value.clientWidth / 2;
+  const tooltipPosLeft = tooltip.value.offsetLeft;
   // 좌측을 넘을 때
-  if (progressbarWidth < currentbarWidth + tooltipWidth / 2) {
-    tooltipLeft = progressbarWidth - (currentbarWidth + tooltipWidth);
-    arrowLeft = -6;
+  if (progressbarWidth < currentbarWidth + tooltipWidth) {
+    tooltipLeft = progressbarWidth - (currentbarWidth + tooltipWidth * 2);
+    arrowLeft = minMargin < progressbarWidth - currentbarWidth
+    ? currentbarWidth + tooltipWidth - progressbarWidth
+    : currentbarWidth + tooltipWidth - progressbarWidth - minMargin;
   // 우측을 넘을 때
-  } else if (tooltip.value.offsetLeft - progressbar.value.offsetLeft < 0) {
-    if (currentbarWidth === 0) {
-      tooltipLeft = 0;
-    } else {
-      tooltipLeft = (tooltip.value.offsetLeft - progressbar.value.offsetLeft) / 2;
-    }
-    arrowLeft = -(tooltipWidth - 6);
+  } else if (tooltipPosLeft - progressbarPosLeft <= 0) {
+    tooltipLeft = ((tooltipPosLeft + 20) - tooltipWidth);
+    arrowLeft = minMargin < tooltipPosLeft
+    ? tooltipPosLeft - tooltipWidth
+    : tooltipPosLeft - tooltipWidth + minMargin;
   } else {
-    tooltipLeft = -tooltipWidth / 2;
-    arrowLeft = tooltipLeft;
+    tooltipLeft = -tooltipWidth;
+    arrowLeft = 0;
   }
   tooltip.value.style.transform = `translateX(${tooltipLeft}px)`;
   arrow.value.style.marginLeft = `${arrowLeft}px`;
@@ -75,7 +77,7 @@ const handleButtonChange = (index) => {
     <div class="button_container">
       <ul>
         <li v-for="(button, index) in prices" :key="index">
-          <button type="button" :class="{ active: button.isActive}" @click="handleButtonChange(index)">{{ button.price }}</button>
+          <button type="button" :class="{ active: button.isActive}" @click="handleButtonChange(index)">{{ button.price.toLocaleString() }}</button>
         </li>
       </ul>
     </div>
@@ -83,7 +85,7 @@ const handleButtonChange = (index) => {
       <div class="progress-bar" ref="progressbar">
         <div class="current-bar" ref="currentbar" :style="{ '--progress-width': progressPercentage }">
           <span class="tooltip_container" ref="tooltip">
-            {{ activePrice }}
+            {{ activePrice.toLocaleString() }}
             <span class="arrow" ref="arrow"></span>
           </span>
         </div>
@@ -136,14 +138,16 @@ const handleButtonChange = (index) => {
       position: absolute;
       top: calc(100% + 10px);
       left: 100%;
-      padding: 2px 4px;
+      padding: 10px 16px;
       color: white;
       border-radius: 4px;
       background-color: black;
       .arrow {
         display: inline-block;
         position: absolute;
+        left: 50%;
         bottom: 100%;
+        transform: translateX(-50%);
         width: 0;
         height: 0;
         border-top: 3px solid transparent;
