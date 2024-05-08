@@ -110,8 +110,8 @@ function setTooltipPosition() {
 }
 .tooltip {
   position: absolute;
-  min-width: 50px;
-  padding: 6px;
+  min-width: 70px;
+  padding: 6px 16px;
   left: 100%;
   transform: translateX(-50%);
   bottom: calc(100% + 10px);
@@ -140,7 +140,7 @@ function setTooltipPosition() {
 }
 .tooltip.maxLeft::after {
   left: 2px;
-  margin-left: 6px;
+  margin-left: 16px;
 }
 .tooltip.maxRight {
   left: auto;
@@ -149,6 +149,6 @@ function setTooltipPosition() {
 }
 .tooltip.maxRight::after {
   left: calc(100% - 10px);
-  margin-left: -6px;
+  margin-left: -16px;
 }
 </style>
