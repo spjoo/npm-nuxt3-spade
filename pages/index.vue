@@ -46,7 +46,7 @@ const handleTooltipPosition = async () => {
     : currentbarWidth + tooltipWidth - progressbarWidth - minMargin;
   // 우측을 넘을 때
   } else if (tooltipPosLeft - progressbarPosLeft <= 0) {
-    tooltipLeft = ((tooltipPosLeft + 20) - tooltipWidth);
+    tooltipLeft = ((tooltipPosLeft + progressbarPosLeft) - tooltipWidth);
     arrowLeft = minMargin < tooltipPosLeft
     ? tooltipPosLeft - tooltipWidth
     : tooltipPosLeft - tooltipWidth + minMargin;
