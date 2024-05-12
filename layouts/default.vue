@@ -2,7 +2,6 @@
 
 <template>
   <div class="wrap">
-    <BaseHeader />
     <slot />
   </div>
 </template>
