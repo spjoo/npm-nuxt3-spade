@@ -4,6 +4,7 @@
 // (예: 좌측에 있을 때는 진행률에 따라 좌측으로 화살표가 이동되어야 할 수 있음)
 // Tooltip의 화살표는 항상 Tooltip 영역 범위 안에 있어야 하며 좌/우측 최소 6px의 마진이 있어야 함
 // Tooltip은 Progress bar의 영역을 벗어날 수 없음
+import { ref, reactive, onMounted, onUpdated, computed } from 'vue';
 
 const tooltip = ref(null);
 const arrow = ref(null);
@@ -30,36 +31,38 @@ const progressPercentage = computed(() => {
   return `${activePrice.value / maxPrice * 100}%`;
 });
 
-const handleTooltipPosition = async () => {
-  await nextTick(); // DOM 업데이트가 처리될 때까지 기다림
-  
-  const progressbarWidth = progressbar.value.clientWidth;
-  const progressbarPosLeft = progressbar.value.offsetLeft;
+const handleTooltipPosition = (progressbarWidth) => {
   const currentbarWidth = currentbar.value.clientWidth;
   const tooltipWidth = tooltip.value.clientWidth / 2;
-  const tooltipPosLeft = tooltip.value.offsetLeft;
+  const arrowWidth = arrow.value.offsetWidth / 2;
   // 좌측을 넘을 때
-  if (progressbarWidth < currentbarWidth + tooltipWidth) {
+  if (currentbarWidth < tooltipWidth) {
+    tooltipLeft = -currentbarWidth;
+    arrowLeft = minMargin < currentbarWidth
+    ? currentbarWidth - arrowWidth
+    : minMargin;
+  }
+  // 우측을 넘을 때
+  else if (progressbarWidth < currentbarWidth + tooltipWidth) {
     tooltipLeft = progressbarWidth - (currentbarWidth + tooltipWidth * 2);
     arrowLeft = minMargin < progressbarWidth - currentbarWidth
-    ? currentbarWidth + tooltipWidth - progressbarWidth
-    : currentbarWidth + tooltipWidth - progressbarWidth - minMargin;
-  // 우측을 넘을 때
-  } else if (tooltipPosLeft - progressbarPosLeft <= 0) {
-    tooltipLeft = ((tooltipPosLeft + progressbarPosLeft) - tooltipWidth);
-    arrowLeft = minMargin < tooltipPosLeft
-    ? tooltipPosLeft - tooltipWidth
-    : tooltipPosLeft - tooltipWidth + minMargin;
-  } else {
+    ? progressbarWidth - currentbarWidth + arrowWidth
+    : (tooltipWidth * 2) - (arrowWidth * 2) - minMargin;
+  }
+  else {
     tooltipLeft = -tooltipWidth;
-    arrowLeft = 0;
+    arrowLeft = tooltipWidth - arrowWidth;
   }
   tooltip.value.style.transform = `translateX(${tooltipLeft}px)`;
-  arrow.value.style.marginLeft = `${arrowLeft}px`;
+  arrow.value.style.transform = `translateX(${arrowLeft}px)`;
 }
-
 onMounted(() => {
-  handleTooltipPosition();
+  const progressbarWidth = progressbar.value.clientWidth;
+  handleTooltipPosition(progressbarWidth);
+});
+onUpdated(() => {
+  const progressbarWidth = progressbar.value.clientWidth;
+  handleTooltipPosition(progressbarWidth);
 });
 
 const handleButtonChange = (index) => {
@@ -67,7 +70,6 @@ const handleButtonChange = (index) => {
     button.isActive = idx === index;
   });
   activePrice.value = prices[index].price;
-  handleTooltipPosition();
 };
 
 </script>
@@ -145,11 +147,8 @@ const handleButtonChange = (index) => {
       .arrow {
         display: inline-block;
         position: absolute;
-        left: 50%;
+        left: 0;
         bottom: 100%;
-        transform: translateX(-50%);
-        width: 0;
-        height: 0;
         border-top: 3px solid transparent;
         border-left: 4px solid transparent;
         border-right: 4px solid transparent;
