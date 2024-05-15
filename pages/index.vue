@@ -5,10 +5,9 @@
 // Tooltip의 화살표는 항상 Tooltip 영역 범위 안에 있어야 하며 좌/우측 최소 6px의 마진이 있어야 함
 // Tooltip은 Progress bar의 영역을 벗어날 수 없음
 
-import { ref, reactive } from 'vue';
+import { ref, reactive, computed, onMounted, onUpdated } from 'vue';
 import BottomSheet from '../../components/common/BottomSheet.vue';
 
-const customPriceValue = ref(null);
 const isOpenBottomsheet = ref(false);
 const showBottomsheet = () => {
   isOpenBottomsheet.value = true;
@@ -28,15 +27,57 @@ const prices = reactive([
   { price: 100000, isActive: false },
 ]);
 
+const tooltip = ref(null);
+const arrow = ref(null);
+const currentbar = ref(null);
+const progressbar = ref(null);
+const minMargin = 6;
+const customPriceValue = ref(null);
 const maxPrice = Math.max(...prices.map(price => price.price));
+let tooltipLeft = 0;
+let arrowLeft = 0;
 let activePrice = ref(prices.find(price => price.isActive ? price.isActive : prices[0]).price);
 
 const progressPercentage = computed(() => {
   if (activePrice.value > maxPrice) {
-    return '100%'
+    return '100%';
   } else {
-    return `${activePrice.value / maxPrice * 100}%`
+    return `${activePrice.value / maxPrice * 100}%`;
   };
+});
+
+const handleTooltipPosition = (progressbarWidth) => {
+  const currentbarWidth = currentbar.value.clientWidth;
+  const tooltipWidth = tooltip.value.clientWidth / 2;
+  const arrowWidth = arrow.value.offsetWidth / 2;
+  // 좌측을 넘을 때
+  if (currentbarWidth < tooltipWidth) {
+    tooltipLeft = -currentbarWidth;
+    arrowLeft = minMargin < currentbarWidth
+    ? currentbarWidth - arrowWidth
+    : minMargin;
+  }
+  // 우측을 넘을 때
+  else if (progressbarWidth < currentbarWidth + tooltipWidth) {
+    tooltipLeft = progressbarWidth - (currentbarWidth + tooltipWidth * 2);
+    arrowLeft = minMargin < progressbarWidth - currentbarWidth
+    ? progressbarWidth - currentbarWidth + arrowWidth
+    : (tooltipWidth * 2) - (arrowWidth * 2) - minMargin;
+  }
+  else {
+    tooltipLeft = -tooltipWidth;
+    arrowLeft = tooltipWidth - arrowWidth;
+  }
+  tooltip.value.style.transform = `translateX(${tooltipLeft}px)`;
+  arrow.value.style.transform = `translateX(${arrowLeft}px)`;
+}
+onMounted(() => {
+  const progressbarWidth = progressbar.value.clientWidth;
+  handleTooltipPosition(progressbarWidth);
+});
+onUpdated(() => {
+  const progressbarWidth = progressbar.value.clientWidth;
+  handleTooltipPosition(progressbarWidth);
 });
 
 const handleButtonChange = (index) => {
@@ -48,10 +89,13 @@ const handleButtonChange = (index) => {
 };
 
 const handleChangecustomPrice = () => {
-  activePrice.value = customPriceValue.value;
-  showBottomsheet();
+  if (customPriceValue.value !== null && customPriceValue.value !== '') {
+    activePrice.value = customPriceValue.value;
+    showBottomsheet();
+  } else {
+    alert('값을 입력해주세요.');
+  }
 };
-
 </script>
 
 <template>
@@ -59,7 +103,13 @@ const handleChangecustomPrice = () => {
     <div class="button_container">
       <ul>
         <li v-for="(button, index) in prices" :key="index">
-          <button type="button" :class="{ active: button.isActive}" @click="handleButtonChange(index)">{{ button.price.toLocaleString() }}</button>
+          <button
+            type="button"
+            :class="{ active: button.isActive}" 
+            @click="handleButtonChange(index)"
+          >
+            {{ button.price.toLocaleString() }}
+          </button>
         </li>
       </ul>
     </div>
@@ -70,13 +120,24 @@ const handleChangecustomPrice = () => {
     </div>
   </main>
   <BottomSheet
-    :maxPrice="maxPrice"
-    :customPriceValue ="customPriceValue"
-    :progressPercentage="progressPercentage"
-    :activePrice="activePrice"
+    buttonTitle="확인"
     :isOpenBottomsheet="isOpenBottomsheet"
     @closeBottomsheet="closeBottomsheet"
-  />
+  >
+    <template #main>
+      <div class="progress-bar_container">
+        <div class="progress-bar" ref="progressbar">
+          <div class="current-bar" ref="currentbar" :style="{ '--progress-width': progressPercentage }">
+            <span class="tooltip_container" ref="tooltip">
+              {{ activePrice.toLocaleString() }}
+              <span class="arrow" ref="arrow"></span>
+            </span>
+          </div>
+        </div>
+        <p class="max-price">{{ maxPrice.toLocaleString() }}원</p>
+      </div>
+    </template>
+  </BottomSheet>
 </template>
 
 <style scoped lang="scss">
@@ -122,6 +183,47 @@ const handleChangecustomPrice = () => {
       outline: none;
       border-radius: 10px;
       background-color: black;
+    }
+  }
+}
+.max-price {
+  margin-top: 10px;
+  text-align: right;
+  font-size: 13px;
+  font-weight: 700;
+}
+.progress-bar {
+  position: relative;
+  width: 100%;
+  height: 10px;
+  border-radius: 10px;
+  background-color: #d8d8d8;
+  .current-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: var(--progress-width);
+    height: 100%;
+    border-radius: 10px;
+    background-color: #0077ff;
+    .tooltip_container {
+      position: absolute;
+      bottom: calc(100% + 10px);
+      left: 100%;
+      padding: 10px 16px;
+      color: white;
+      border-radius: 4px;
+      background-color: black;
+      .arrow {
+        display: inline-block;
+        position: absolute;
+        left: 0;
+        top: 100%;
+        border-top: 6px solid black;
+        border-left: 4px solid transparent;
+        border-right: 4px solid transparent;
+        border-bottom: 3px solid transparent;
+      }
     }
   }
 }
