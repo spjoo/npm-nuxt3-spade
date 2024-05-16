@@ -1,7 +1,7 @@
 <script setup>
-import { ref, computed, nextTick, onMounted } from 'vue';
+import { ref, computed, nextTick, onMounted, onBeforeUnmount } from 'vue';
 
-const priceList = [0, 1000, 2000, 5000, 9000, 10000];
+const priceList = [0, 5000, 20000, 50000, 90000, 95000, 100000];
 
 const currentPrice = ref(priceList[0]);
 const barEl = ref(null);
@@ -11,7 +11,7 @@ const setPrice = val => {
 	if (tipEl.value) calcPos();
 };
 const percentageVal = computed(() => {
-	return (currentPrice.value / 10000) * 100;
+	return (currentPrice.value / priceList[priceList.length - 1]) * 100;
 });
 const tipPos = ref(null);
 const arrowPos = ref(null);
@@ -37,18 +37,22 @@ const calcPos = async () => {
 	// 왼쪽
 	if (currentProgressWidth < tipWidth / 2) {
 		tipPos.value = currentProgressWidth - tipWidth / 2;
-		arrowPos.value = tipPos.value < 4 + 6 ? tipPos.value + 4 + 6 : tipPos.value;
+		arrowPos.value = Math.abs(tipPos.value) + 4 + 6 > tipWidth / 2 ? tipPos.value + 4 + 6 : tipPos.value;
 	}
 	// 오르쪽
 	else if (progressWidth.value - currentProgressWidth < tipWidth / 2) {
 		tipPos.value = tipWidth / 2 - (progressWidth.value - currentProgressWidth);
-		arrowPos.value = tipPos.value > 4 + 6 ? tipPos.value - 4 - 6 : tipPos.value;
+		arrowPos.value = tipPos.value + 4 + 6 > tipWidth / 2 ? tipPos.value - 4 - 6 : tipPos.value;
 	}
 };
 
 onMounted(async () => {
 	await setProgressWidth();
 	await calcPos();
+	window.addEventListener('resize', setProgressWidth);
+});
+onBeforeUnmount(() => {
+	window.removeEventListener('resize', setProgressWidth);
 });
 </script>
 
@@ -70,7 +74,7 @@ onMounted(async () => {
 				>
 					{{ currentPrice.toLocaleString() }}원
 				</p>
-				<p>{{ priceList[priceList.length - 1].toLocaleString() }}원</p>
+				<span>{{ priceList[priceList.length - 1].toLocaleString() }}원</span>
 			</div>
 		</section>
 	</main>
@@ -143,5 +147,12 @@ onMounted(async () => {
 	border-left: 4px solid transparent;
 	border-right: 4px solid transparent;
 	transform: translateX(calc(var(--arrowPos) * 1px));
+}
+.progress_area span {
+	display: block;
+	margin: 4px 0;
+	color: #787878;
+	font-size: 13px;
+	text-align: right;
 }
 </style>
