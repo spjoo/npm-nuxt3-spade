@@ -1,6 +1,6 @@
 <script setup>
 import Modal from "../components/util/Modal.vue";
-
+import { ref, inject } from "vue";
 const MAX_VALUE = 100000;
 const BTNS_VALUE = [{ b_val: 0 }, { b_val: 1000 }, { b_val: 5000 }, { b_val: 10000 }, { b_val: 50000 }, { b_val: 90000 }, { b_val: 95000 }, { b_val: MAX_VALUE }];
 
@@ -10,16 +10,19 @@ const progressWrap = ref(null); // progress ref
 const pointer = ref(null); // pointer ref
 const open = ref(false);
 
-/**
- *
- * @param {*} val get number value
- * transform number Add comma
- */
-const comma = (val) => new Intl.NumberFormat("ko", { currency: "KRW" }).format(val);
+// inject
+const { modalState, updateModal } = inject("modalState");
 
 /**
  *
- * @param {*} e get units
+ * @param {*} value get number value
+ * transform number Add comma
+ */
+const comma = (value) => new Intl.NumberFormat("ko", { currency: "KRW" }).format(value);
+
+/**
+ *
+ * @param {*} event get units
  */
 const unitFormat = (e) => {
   const numberUnits = ["", "", "이", "삼", "사", "오", "육", "칠", "팔", "구"];
@@ -103,6 +106,10 @@ const toolPosX = () => {
 onMounted(() => {
   window.addEventListener("resize", toolPosX);
   toolPosX();
+
+  setTimeout(() => {
+    updateLocation();
+  }, 2000);
 });
 onBeforeUnmount(() => window.removeEventListener("resize", toolPosX));
 onUpdated(() => toolPosX());
@@ -110,6 +117,9 @@ onUpdated(() => toolPosX());
 
 <template>
   <div class="container">
+    <h2>{{ modalState }}</h2>
+    <button @click="updateModal('on')">zz</button>
+    <button @click="updateModal('off')">zz</button>
     <h1 style="text-align: center">Tool Tip</h1>
     <button @click="open = true">Open Modal</button>
 
@@ -126,7 +136,7 @@ onUpdated(() => toolPosX());
     </div>
   </div>
 
-  <Modal :open="{ open }" />
+  <Modal />
 </template>
 
 <style scoped>

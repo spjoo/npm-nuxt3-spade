@@ -1,75 +1,12 @@
-# Nuxt 3 Minimal Starter
+1. teleport로 바텀시트를 구현한다. (body 태그가 닫히기 바로 전)
+2. 바텀시트는 각 금액 버튼 클릭 시 열리며, dim 영역 또는 바텀시트 내 "확인" 버튼 클릭 시 닫힌다.
+3. 페이지 내 input과 "확인"버튼을 추가하며 input에는 숫자만 입력 가능하다.
 
-Look at the [Nuxt 3 documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+- 단, 입력하는 금액에는 제한이 없다.
+- "확인" 버튼 클릭 시에도 바텀시트가 열린다.
 
-## Setup
+4. input에 입력된 값이 프로그레스바의 max값을 넘을 경우 percentage는 100%로 처리한다.
+5. 프로그레스바의 우측 하단에는 max값에 대한 정보를 보여준다. (해당 이미지의 “7일”과 같이)
 
-Make sure to install the dependencies:
-
-```bash
-# npm
-npm install
-
-# pnpm
-pnpm install
-
-# yarn
-yarn install
-
-# bun
-bun install
-```
-
-## Development Server
-
-Start the development server on `http://localhost:3000`:
-
-```bash
-# npm
-npm run dev
-
-# pnpm
-pnpm run dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
-```
-
-## Production
-
-Build the application for production:
-
-```bash
-# npm
-npm run build
-
-# pnpm
-pnpm run build
-
-# yarn
-yarn build
-
-# bun
-bun run build
-```
-
-Locally preview production build:
-
-```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm run preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
+- 과제 기한: 05.22(수) 출근 전까지
+- 브렌치명: 이름/bottomsheet
