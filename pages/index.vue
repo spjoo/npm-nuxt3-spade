@@ -1,4 +1,6 @@
 <script setup>
+import Modal from "../components/util/Modal.vue";
+
 const MAX_VALUE = 100000;
 const BTNS_VALUE = [{ b_val: 0 }, { b_val: 1000 }, { b_val: 5000 }, { b_val: 10000 }, { b_val: 50000 }, { b_val: 90000 }, { b_val: 95000 }, { b_val: MAX_VALUE }];
 
@@ -6,6 +8,7 @@ const btnValue = ref(0); // button value
 const toolBox = ref(null); // ToolBox ref
 const progressWrap = ref(null); // progress ref
 const pointer = ref(null); // pointer ref
+const open = ref(false);
 
 /**
  *
@@ -53,7 +56,7 @@ const unitFormat = (e) => {
  *
  * @param {*} e get button value
  */
-const onClickBtn = (e) => (btnValue.value = e.b_val);
+const onClickBtn = (event) => (btnValue.value = event.b_val);
 
 /**
  * transform value to % in progress value
@@ -74,7 +77,6 @@ const toolPosX = () => {
   let proVal = progressVal(); // dynamic progress value
   let posX = ProWid * (proVal / 100); // dynamic progress value x
 
-  console.log("proVal: ", proVal);
   if (posX < ToolWid / 2) {
     // 1 - detect left side
     Tool.style.transform = `translateX(0px)`;
@@ -97,6 +99,7 @@ const toolPosX = () => {
     Pointer.style.transform = `translateX(${posX - PointerWid / 2}px)`;
   }
 };
+
 onMounted(() => {
   window.addEventListener("resize", toolPosX);
   toolPosX();
@@ -108,6 +111,7 @@ onUpdated(() => toolPosX());
 <template>
   <div class="container">
     <h1 style="text-align: center">Tool Tip</h1>
+    <button @click="open = true">Open Modal</button>
 
     <div class="button-wrap">
       <h3>buttons</h3>
@@ -121,6 +125,8 @@ onUpdated(() => toolPosX());
       </div>
     </div>
   </div>
+
+  <Modal :open="{ open }" />
 </template>
 
 <style scoped>
