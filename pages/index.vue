@@ -12,38 +12,51 @@
         {{ buttonItem.price.toLocaleString() }}원
       </button>
     </div>
-    <div class="progress-area" ref="progressArea">
-      <div
-        class="progress-bar"
-        ref="progressBar"
-        :style="{
-          width: `${progressPercent}%`,
-        }"
-      >
-        <span
-          class="tooltip"
-          ref="tooltip"
-          :class="{
-            maxLeft: isTooltipPosition === -1,
-            maxRight: isTooltipPosition === 1,
-          }"
-          >{{ price.toLocaleString() }}원</span
-        >
-      </div>
+    <div class="input-area">
+      <input type="number" ref="priceInput" />
+      <button type="button" @click="getInputPrice">확인</button>
     </div>
   </main>
+  <teleport to="body">
+    <div v-if="show" class="modal-backdrop" @click="close">
+      <div class="modal-content" @click.stop>
+        <div class="progress-wrap">
+          <div class="progress-area" ref="progressArea">
+            <div
+              class="progress-bar"
+              ref="progressBar"
+              :style="{
+                width: `${progressPercent}%`,
+              }"
+            >
+              <span
+                class="tooltip"
+                ref="tooltip"
+                :style="{
+                  marginLeft: overflowTooltipSize + 'px',
+                  '--tailPosition': overflowTailSize + 'px',
+                }"
+                >{{ price.toLocaleString() }}원</span
+              >
+            </div>
+          </div>
+          <p class="max-price">{{ maxPrice }}원</p>
+        </div>
+        <button @click="close">확인</button>
+      </div>
+    </div>
+  </teleport>
 </template>
 <script setup>
-import { ref } from "vue";
-
+import { ref, computed, onMounted, onUnmounted, nextTick } from "vue";
 const price = ref(0);
 const progressArea = ref(null);
+const progressAreaWidth = ref(0);
 const progressPercent = ref(0);
-const maxPrice = 100000;
+const overflowTooltipSize = ref(0); // 넘친 툴팁 사이즈
+const overflowTailSize = ref(0); // 말꼬리 사이즈
 const tooltip = ref(null);
-const progressBar = ref(null);
-const isTooltipPosition = ref(-1);
-let buttonItems = ref([
+const buttonItems = ref([
   { price: 0 },
   { price: 1000 },
   { price: 5000 },
@@ -53,35 +66,100 @@ let buttonItems = ref([
   { price: 95000 },
   { price: 100000 },
 ]);
+const priceInput = ref(null);
 
-function getPrice(i) {
+const maxPrice = computed(() => {
+  return buttonItems.value.reduce((max, buttonItem) => {
+    return buttonItem.price > max ? buttonItem.price : max;
+  }, 0);
+});
+const show = ref(false);
+
+const getPrice = (i) => {
   price.value = buttonItems.value[i].price;
-  progressPercent.value = (price.value / maxPrice) * 100;
-  //console.log(price.value, progressPercent.value);
-  isTooltipPosition.value = 0;
+  progressPercent.value = (price.value / maxPrice.value) * 100;
+  open();
   nextTick(() => {
-    setTooltipPosition();
+    progressBarCheck();
   });
-}
-function setTooltipPosition() {
-  if (tooltip.value) {
-    const tooltipRect = tooltip.value.getBoundingClientRect();
-    const progressAreaRect = progressArea.value.getBoundingClientRect();
-    if (
-      tooltipRect.left < progressAreaRect.left ||
-      tooltipRect.left - progressAreaRect.left <= 1
-    ) {
-      isTooltipPosition.value = -1;
-    } else if (
-      tooltipRect.right > progressAreaRect.right ||
-      tooltipRect.right - progressAreaRect.right >= -1
-    ) {
-      isTooltipPosition.value = 1;
+};
+
+const getInputPrice = () => {
+  const inputPrice = parseInt(priceInput.value.value);
+  if (!isNaN(inputPrice)) {
+    if (inputPrice > maxPrice.value) {
+      price.value = maxPrice.value;
+    } else if (inputPrice < 0) {
+      price.value = 0;
     } else {
-      isTooltipPosition.value = 0;
+      price.value = inputPrice;
+    }
+    progressPercent.value = (price.value / maxPrice.value) * 100;
+  }
+  open();
+  nextTick(() => {
+    progressBarCheck();
+  });
+};
+
+const progressBarCheck = () => {
+  progressAreaWidth.value = progressArea.value.clientWidth;
+  if (!progressAreaWidth.value) {
+    progressAreaWidth.value = progressArea.value.clientWidth;
+    if (progressAreaWidth.value === 0) {
+      nextTick(() => {
+        progressBarCheck();
+      });
+      return false;
     }
   }
-}
+  const tooltipHalfWidth = tooltip.value.clientWidth / 2;
+  const tooltipPositionLeft =
+    (progressPercent.value / 100) * progressAreaWidth.value;
+  // 좌측 넘침 체크
+  if (tooltipPositionLeft - tooltipHalfWidth < 0) {
+    overflowTooltipSize.value = (tooltipPositionLeft - tooltipHalfWidth) * -1;
+    overflowTailSize.value =
+      16 + 4 < tooltipPositionLeft
+        ? tooltipPositionLeft - tooltipHalfWidth
+        : tooltipPositionLeft - tooltipHalfWidth + 16 + 4;
+  }
+  //우측 넘침 체크
+  else if (tooltipPositionLeft + tooltipHalfWidth > progressAreaWidth.value) {
+    overflowTooltipSize.value =
+      (tooltipPositionLeft + tooltipHalfWidth - progressAreaWidth.value) * -1;
+    overflowTailSize.value =
+      16 + 4 < progressAreaWidth.value - tooltipPositionLeft
+        ? tooltipPositionLeft + tooltipHalfWidth - progressAreaWidth.value
+        : tooltipPositionLeft +
+          tooltipHalfWidth -
+          progressAreaWidth.value -
+          16 -
+          4;
+  } else {
+    overflowTooltipSize.value = 0;
+    overflowTailSize.value = 0;
+  }
+};
+
+const close = () => {
+  show.value = false;
+};
+const open = () => {
+  show.value = true;
+};
+
+const handleResize = () => {
+  if (show.value) progressBarCheck;
+};
+
+onMounted(() => {
+  window.addEventListener("resize", handleResize);
+});
+
+onUnmounted(() => {
+  window.removeEventListener("resize", handleResize);
+});
 </script>
 
 <style scoped>
@@ -89,14 +167,14 @@ function setTooltipPosition() {
   padding: 20px;
 }
 .price-btn {
-  min-width: 60px;
+  min-width: 50px;
   margin: 0 5px;
 }
 .progress-area {
   position: relative;
   margin-top: 60px;
   width: 100%;
-  height: 40px;
+  height: 20px;
   border: 1px solid black;
   border-radius: 5px;
 }
@@ -108,9 +186,8 @@ function setTooltipPosition() {
   height: 100%;
   background: black;
 }
-.tooltip {
+.progress-area .tooltip {
   position: absolute;
-  min-width: 70px;
   padding: 6px 16px;
   left: 100%;
   transform: translateX(-50%);
@@ -122,7 +199,7 @@ function setTooltipPosition() {
   box-sizing: border-box;
   white-space: nowrap;
 }
-.tooltip::after {
+.progress-area .tooltip::after {
   display: block;
   content: "";
   position: absolute;
@@ -130,25 +207,31 @@ function setTooltipPosition() {
   bottom: -4px;
   width: 8px;
   height: 8px;
-  margin-left: -4px;
+  margin-left: var(--tailPosition);
   background: black;
-  transform: rotate(45deg);
+  transform: translateX(-50%) rotate(45deg);
 }
-.tooltip.maxLeft {
+.progress-wrap .max-price {
+  margin: 10px 0 0;
+  text-align: right;
+}
+.modal-backdrop {
+  position: fixed;
+  top: 0;
   left: 0;
-  transform: translateX(0);
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
 }
-.tooltip.maxLeft::after {
-  left: 2px;
-  margin-left: 16px;
-}
-.tooltip.maxRight {
-  left: auto;
-  right: 0;
-  transform: translateX(0);
-}
-.tooltip.maxRight::after {
-  left: calc(100% - 10px);
-  margin-left: -16px;
+.modal-content {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  background: white;
+  width: 100%;
+  padding: 20px;
+  border-radius: 4px;
+  text-align: center;
+  box-sizing: border-box;
 }
 </style>
