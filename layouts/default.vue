@@ -2,8 +2,7 @@
 
 <template>
   <div class="wrap">
-    <BaseHeader />
-    <slot />
+    <NuxtPage />
   </div>
 </template>
 
