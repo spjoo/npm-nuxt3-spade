@@ -61,8 +61,8 @@ const handleTooltipPosition = (progressbarWidth) => {
   else if (progressbarWidth < currentbarWidth + tooltipWidth) {
     tooltipLeft = progressbarWidth - (currentbarWidth + tooltipWidth * 2);
     arrowLeft = minMargin < progressbarWidth - currentbarWidth
-    ? progressbarWidth - currentbarWidth + arrowWidth
-    : (tooltipWidth * 2) - (arrowWidth * 2) - minMargin;
+    ? -tooltipLeft - arrowWidth
+    : -tooltipLeft - (arrowWidth * 2) - minMargin;
   }
   else {
     tooltipLeft = -tooltipWidth;
