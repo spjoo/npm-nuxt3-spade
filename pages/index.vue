@@ -1,91 +1,110 @@
 <script setup>
-import { ref, computed, nextTick, onMounted, onBeforeUnmount } from 'vue';
+import { ref, onMounted, onUpdated, nextTick, computed } from 'vue';
 
 const priceList = [0, 5000, 20000, 50000, 90000, 95000, 100000];
-
+const arrowMargin = 6;
+const priceLast = priceList.length - 1;
 const currentPrice = ref(priceList[0]);
-const barEl = ref(null);
-const tipEl = ref(null);
-const setPrice = val => {
-	currentPrice.value = val;
-	if (tipEl.value) calcPos();
-};
-const percentageVal = computed(() => {
-	return (currentPrice.value / priceList[priceList.length - 1]) * 100;
+const tooltipRef = ref(null);
+const progressBarRef = ref(null);
+const toolTipStatus = ref(false);
+const toolTipLeft = ref(0);
+const toolTipRight = ref(0);
+
+const toolTipPosX = ref(0);
+const pointPos = ref(0);
+
+const progressValue = computed(() => {
+	return (currentPrice.value / priceList[priceLast]) * 100;
 });
-const tipPos = ref(null);
-const arrowPos = ref(null);
-const progressWidth = ref(0);
-const setProgressWidth = () => {
-	if (!barEl.value) {
-		nextTick(() => {
-			progressWidth.value = barEl.value.offsetWidth;
-		});
-	} else {
-		progressWidth.value = barEl.value.offsetWidth;
-	}
-};
-const calcPos = async () => {
-	let tipWidth = 0;
-	await nextTick(() => {
-		tipWidth = tipEl.value.offsetWidth;
+
+const getCurrentPrice = price => {
+	currentPrice.value = price;
+	toolTipStatus.value = true;
+
+	nextTick(() => {
+		widthCalc();
 	});
-	const currentProgressWidth = (percentageVal.value / 100) * progressWidth.value;
-	// 초기화
-	tipPos.value = 0;
-	arrowPos.value = 0;
-	// 왼쪽
-	if (currentProgressWidth < tipWidth / 2) {
-		tipPos.value = currentProgressWidth - tipWidth / 2;
-		arrowPos.value = Math.abs(tipPos.value) + 4 + 6 > tipWidth / 2 ? tipPos.value + 4 + 6 : tipPos.value;
+};
+const widthCalc = () => {
+	if (!tooltipRef.value || !progressBarRef.value) return;
+
+	const toolTipWidth = tooltipRef.value.offsetWidth;
+	const leftOffset = tooltipRef.value.offsetLeft;
+	const progressWidth = progressBarRef.value.offsetWidth;
+
+	//툴팁 왼쪽 값
+	toolTipLeft.value = Math.floor(toolTipWidth / 2 - leftOffset + toolTipPosX.value);
+	//툴팁 오른쪽 값
+	toolTipRight.value = Math.floor(progressWidth - (toolTipWidth / 2 + leftOffset - toolTipPosX.value));
+
+	//초기화
+	toolTipPosX.value = 0;
+	pointPos.value = 0;
+
+	//왼쪽
+	if (-toolTipLeft.value < 0) {
+		toolTipPosX.value = toolTipLeft.value;
+		pointPos.value = toolTipPosX.value;
+
+		if (toolTipWidth / 2 - pointPos.value < arrowMargin) {
+			pointPos.value = toolTipPosX.value - arrowMargin - 4;
+		}
 	}
-	// 오르쪽
-	else if (progressWidth.value - currentProgressWidth < tipWidth / 2) {
-		tipPos.value = tipWidth / 2 - (progressWidth.value - currentProgressWidth);
-		arrowPos.value = tipPos.value + 4 + 6 > tipWidth / 2 ? tipPos.value - 4 - 6 : tipPos.value;
+	//오른쪽
+	else if (toolTipRight.value < 0) {
+		toolTipPosX.value = toolTipRight.value;
+		pointPos.value = toolTipPosX.value;
+
+		if (toolTipWidth / 2 + toolTipPosX.value < arrowMargin) {
+			pointPos.value = toolTipPosX.value + arrowMargin + 4;
+		}
 	}
 };
 
-onMounted(async () => {
-	await setProgressWidth();
-	await calcPos();
-	window.addEventListener('resize', setProgressWidth);
-});
-onBeforeUnmount(() => {
-	window.removeEventListener('resize', setProgressWidth);
-});
+onUpdated(() => {});
+onMounted(() => {});
 </script>
 
 <template>
 	<main>
 		<ul class="price_area">
 			<li v-for="(price, i) in priceList" :key="i">
-				<button @click="setPrice(price)">{{ price.toLocaleString() }}</button>
+				<button @click="getCurrentPrice(price)">
+					{{ price.toLocaleString() }}
+				</button>
 			</li>
 		</ul>
 		<section>
 			<div class="progress_area">
-				<progress ref="barEl" max="100" :value="percentageVal"></progress>
+				<progress ref="progressBarRef" max="100" :value="progressValue"></progress>
+
 				<p
-					ref="tipEl"
+					ref="tooltipRef"
 					class="tooltip"
-					:class="{ is_on: arrowPos !== null && tipPos !== null }"
-					:style="[{ left: `${percentageVal}%` }, { '--tipPos': tipPos }, { '--arrowPos': arrowPos }]"
+					:class="toolTipStatus ? 'on' : ''"
+					:style="[{ left: `${progressValue}%` }, { marginLeft: `${toolTipPosX}px` }]"
 				>
 					{{ currentPrice.toLocaleString() }}원
 				</p>
-				<span>{{ priceList[priceList.length - 1].toLocaleString() }}원</span>
+				<span>{{ priceList[priceLast].toLocaleString() }}원</span>
 			</div>
 		</section>
 	</main>
 </template>
 
 <style scoped>
+main {
+	width: 100%;
+	margin: 0 auto;
+}
 .price_area {
 	display: flex;
 	flex-wrap: wrap;
-	gap: 16px;
+	gap: 0.8rem;
 	list-style: none;
+	margin: 0 auto;
+	padding: 0;
 }
 .price_area button {
 	min-width: 100px;
@@ -93,6 +112,7 @@ onBeforeUnmount(() => {
 	color: #555;
 	border: 1px solid #ccc;
 	background: #f0f0f0;
+	cursor: pointer;
 }
 .progress_area {
 	position: relative;
@@ -112,6 +132,7 @@ onBeforeUnmount(() => {
 .progress_area progress::-webkit-progress-value {
 	background: #43f15e;
 	border-radius: 12px;
+	transition: all 0.3s;
 }
 .progress_area .tooltip {
 	display: flex;
@@ -121,7 +142,6 @@ onBeforeUnmount(() => {
 	justify-content: center;
 	margin-top: 0;
 	margin-bottom: 10px;
-	margin-left: calc(var(--tipPos) * -1px);
 	padding: 6px 8px;
 	background: #000;
 	border-radius: 4px;
@@ -132,7 +152,7 @@ onBeforeUnmount(() => {
 	opacity: 0;
 	transform: translateX(-50%);
 }
-.progress_area .tooltip.is_on {
+.progress_area .tooltip.on {
 	opacity: 1;
 	transition: opacity 0.3s;
 }
@@ -142,11 +162,11 @@ onBeforeUnmount(() => {
 	position: absolute;
 	top: 100%;
 	left: 50%;
-	margin-left: -4px;
+	margin-left: v-bind(-pointPos + 'px');
+	transform: translateX(-50%);
 	border-top: 6px solid #000;
 	border-left: 4px solid transparent;
 	border-right: 4px solid transparent;
-	transform: translateX(calc(var(--arrowPos) * 1px));
 }
 .progress_area span {
 	display: block;
