@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, onUpdated, nextTick, computed } from 'vue';
+import { ref, nextTick, computed } from 'vue';
 
 const priceList = [0, 5000, 20000, 50000, 90000, 95000, 100000];
 const arrowMargin = 6;
@@ -7,10 +7,10 @@ const priceLast = priceList.length - 1;
 const currentPrice = ref(priceList[0]);
 const tooltipRef = ref(null);
 const progressBarRef = ref(null);
+
 const toolTipStatus = ref(false);
 const toolTipLeft = ref(0);
 const toolTipRight = ref(0);
-
 const toolTipPosX = ref(0);
 const pointPos = ref(0);
 
@@ -61,9 +61,6 @@ const widthCalc = () => {
 		}
 	}
 };
-
-onUpdated(() => {});
-onMounted(() => {});
 </script>
 
 <template>
