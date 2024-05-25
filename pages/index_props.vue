@@ -78,7 +78,8 @@ const handleChangecustomPrice = () => {
       <button type="button" @click="handleChangecustomPrice">확인</button>
     </div>
   </main>
-  <BottomSheet
+  <ClientOnly>
+    <BottomSheet
     :maxPrice="maxPrice"
     :customPriceValue ="customPriceValue"
     :progressPercentage="progressPercentage"
@@ -87,6 +88,7 @@ const handleChangecustomPrice = () => {
     :isOpenBottomsheet="isOpenBottomsheet"
     @closeBottomsheet="closeBottomsheet"
   />
+  </ClientOnly>
 </template>
 
 <style scoped lang="scss">

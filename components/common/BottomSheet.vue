@@ -7,33 +7,28 @@
 // 4. input에 입력된 값이 프로그레스바의 max값을 넘을 경우 percentage는 100%로 처리한다.
 // 5. 프로그레스바의 우측 하단에는 max값에 대한 정보를 보여준다. (해당 이미지의 “7일”과 같이)
 
-import { ref, defineEmits, defineProps, onMounted } from 'vue';
+import { defineEmits, defineProps } from 'vue';
 
-const bottomSheet = ref(null);
 defineEmits(['closeBottomsheet']);
 const props = defineProps({
   buttonTitle: String,
   isOpenBottomsheet: Boolean,
 });
 
-onMounted(() => {
-  document.body.appendChild(bottomSheet.value);
-});
-
 </script>
 
 <template>
   <teleport to="body">
-    <div ref="bottomSheet" class="bottomsheet" :class="{active: isOpenBottomsheet}" @click="$emit('closeBottomsheet')">
+    <aside class="bottomsheet" v-if="isOpenBottomsheet" @click="$emit('closeBottomsheet')">
       <div class="bottomsheet-container">
         <main class="bottomsheet-body">
           <slot name="main"></slot>
         </main>
-        <div class="bottomsheet-foot">
+        <footer class="bottomsheet-foot">
           <button type="button" @click="$emit('closeBottomsheet')">{{ buttonTitle }}</button>
-        </div>
+        </footer>
       </div>
-    </div>
+    </aside>
   </teleport>
 </template>
   
@@ -41,36 +36,33 @@ onMounted(() => {
 .bottomsheet {
   position: fixed;
   inset: 0;
-  pointer-events: none;
   &::before {
     content: '';
-    display: none;
+    display: block;
     width: 100%;
     height: 100%;
     position: absolute;
     inset: 0;
     background-color: rgba(0, 0, 0, 0.5);
   }
-  &.active {
-    z-index: 10;
-    pointer-events: initial;
-    &::before {
-      display: block;
-    }
-    .bottomsheet-container {
-      bottom: 0;
-    }
-  }
   &-container {
     position: absolute;
     width: calc(100% - 40px);
     left: 0;
-    bottom: -100%;
+    bottom: 0;
     padding: 100px 20px 16px;
     border-radius: 20px 20px 0 0;
     background-color: #fff;
-    transition-delay: 0.3s;
-    transition: bottom ease-in-out 0.3s;
+    animation-name: toTop;
+    animation-duration: 0.3s;
+    @keyframes toTop {
+      0% {
+        transform: translateY(100%);
+      }
+      100% {
+        transform: translateY(0);
+      }
+    }
   }
   &-foot {
     width: 100%;

@@ -71,13 +71,11 @@ const handleTooltipPosition = (progressbarWidth) => {
   tooltip.value.style.transform = `translateX(${tooltipLeft}px)`;
   arrow.value.style.transform = `translateX(${arrowLeft}px)`;
 }
-onMounted(() => {
-  const progressbarWidth = progressbar.value.clientWidth;
-  handleTooltipPosition(progressbarWidth);
-});
 onUpdated(() => {
-  const progressbarWidth = progressbar.value.clientWidth;
-  handleTooltipPosition(progressbarWidth);
+  if(isOpenBottomsheet.value) {
+    const progressbarWidth = progressbar.value.clientWidth;
+    handleTooltipPosition(progressbarWidth);
+  }
 });
 
 const handleButtonChange = (index) => {
@@ -119,7 +117,8 @@ const handleChangecustomPrice = () => {
       <button type="button" @click="handleChangecustomPrice">확인</button>
     </div>
   </main>
-  <BottomSheet
+  <ClientOnly>
+    <BottomSheet
     buttonTitle="확인"
     :isOpenBottomsheet="isOpenBottomsheet"
     @closeBottomsheet="closeBottomsheet"
@@ -138,6 +137,7 @@ const handleChangecustomPrice = () => {
       </div>
     </template>
   </BottomSheet>
+  </ClientOnly>
 </template>
 
 <style scoped lang="scss">
