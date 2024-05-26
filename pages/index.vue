@@ -5,7 +5,7 @@ const MAX_VALUE = 100000;
 const BTNS_VALUE = [{ b_val: 0 }, { b_val: 1000 }, { b_val: 5000 }, { b_val: 10000 }, { b_val: 50000 }, { b_val: 90000 }, { b_val: 95000 }, { b_val: MAX_VALUE }];
 
 const btnValue = ref(0); // button value
-const inputValue = ref(0); // input value
+const inputValue = ref(""); // input value
 const toolBox = ref(null); // ToolBox ref
 const progressWrap = ref(null); // progress ref
 const pointer = ref(null); // pointer ref
@@ -13,12 +13,23 @@ const pointer = ref(null); // pointer ref
 // inject
 const { modalState, updateModal } = inject("modalState");
 
+// computed
 /**
  * get MaxValue
  */
 const getMaxValue = computed(() => {
   const max = BTNS_VALUE.reduce((a, b) => Math.max(a, b.b_val), -Infinity);
   return max;
+});
+/**
+ * get progressVal
+ */
+const progressVal = computed(() => {
+  if (btnValue.value > getMaxValue.value) {
+    return 100;
+  } else {
+    return (btnValue.value / MAX_VALUE) * 100;
+  }
 });
 
 /**
@@ -74,28 +85,16 @@ const onClickBtn = (event) => {
 };
 
 /**
- * transform value to % in progress value
- */
-const progressVal = () => {
-  if (btnValue.value > getMaxValue.value) {
-    return 100;
-  } else {
-    return (btnValue.value / MAX_VALUE) * 100;
-  }
-};
-
-/**
  * set position 'toolbox' And 'toolbox pointer'
  */
 const toolPosX = () => {
   const GUIDE_VALUE = 6;
-  let ProWid = progressWrap?.value?.clientWidth; //dynamic progress-wrap width value
-  let Tool = toolBox?.value; // tool-box ref
-  let ToolWid = Tool?.clientWidth; // dynamic tool-box width value
-  let Pointer = pointer?.value; // pointer ref
-  let PointerWid = Pointer?.clientWidth; //dynamic pointer width value
-  let proVal = progressVal(); // dynamic progress value
-  let posX = ProWid * (proVal / 100); // dynamic progress value x
+  const ProWid = progressWrap?.value?.clientWidth; //dynamic progress-wrap width value
+  const Tool = toolBox?.value; // tool-box ref
+  const ToolWid = Tool?.clientWidth; // dynamic tool-box width value
+  const Pointer = pointer?.value; // pointer ref
+  const PointerWid = Pointer?.clientWidth; //dynamic pointer width value
+  const posX = ProWid * (progressVal.value / 100); // dynamic progress value x
 
   if (posX < ToolWid / 2) {
     // 1 - detect left side
@@ -156,7 +155,7 @@ onBeforeUnmount(() => window.removeEventListener("resize", toolPosX));
     <button @click="updateModal('on')">Open Modal</button>
     <div class="button-wrap">
       <h3>buttons</h3>
-      <button class="button" @click="onClickBtn(btn)" v-for="(btn, idx) in BTNS_VALUE" type="button" :key="idx">{{ btn.b_val !== 0 ? unitFormat(btn.b_val) + "원" : "0원" }}</button>
+      <button class="button" v-for="(btn, idx) in BTNS_VALUE" type="button" :key="idx" @click="onClickBtn(btn)">{{ btn.b_val !== 0 ? unitFormat(btn.b_val) + "원" : "0원" }}</button>
     </div>
 
     <div class="input-wrap">
@@ -171,7 +170,7 @@ onBeforeUnmount(() => window.removeEventListener("resize", toolPosX));
       <div class="progress-inner">
         <span ref="toolBox" class="tool-box">{{ comma(btnValue) + "원" }}</span>
         <div ref="pointer" class="pointer"></div>
-        <progress ref="progressWrap" class="progress" :value="progressVal()" max="100"></progress>
+        <progress ref="progressWrap" class="progress" :value="progressVal" max="100"></progress>
       </div>
       <div class="guide-text">
         <span>{{ comma(getMaxValue) }}</span>
