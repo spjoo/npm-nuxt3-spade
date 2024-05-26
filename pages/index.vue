@@ -1,17 +1,25 @@
 <script setup>
-import Modal from "../components/util/Modal.vue";
-import { ref, inject } from "vue";
+import Modal from "../components/common/Modal.vue";
+import { ref, inject, onMounted, onBeforeUnmount, onUpdated, nextTick } from "vue";
 const MAX_VALUE = 100000;
 const BTNS_VALUE = [{ b_val: 0 }, { b_val: 1000 }, { b_val: 5000 }, { b_val: 10000 }, { b_val: 50000 }, { b_val: 90000 }, { b_val: 95000 }, { b_val: MAX_VALUE }];
 
 const btnValue = ref(0); // button value
+const inputValue = ref(0); // input value
 const toolBox = ref(null); // ToolBox ref
 const progressWrap = ref(null); // progress ref
 const pointer = ref(null); // pointer ref
-const open = ref(false);
 
 // inject
 const { modalState, updateModal } = inject("modalState");
+
+/**
+ * get MaxValue
+ */
+const getMaxValue = computed(() => {
+  const max = BTNS_VALUE.reduce((a, b) => Math.max(a, b.b_val), -Infinity);
+  return max;
+});
 
 /**
  *
@@ -22,9 +30,9 @@ const comma = (value) => new Intl.NumberFormat("ko", { currency: "KRW" }).format
 
 /**
  *
- * @param {*} event get units
+ * @param {*} btnValue get units
  */
-const unitFormat = (e) => {
+const unitFormat = (btnValue) => {
   const numberUnits = ["", "", "이", "삼", "사", "오", "육", "칠", "팔", "구"];
   const tenUnits = ["", "십", "백", "천", "만"];
   const thousandUnits = ["", "만", "억", "조", "경", "해"];
@@ -36,7 +44,7 @@ const unitFormat = (e) => {
     }
     return result;
   }
-  return chunkAtEnd(String(e), 4)
+  return chunkAtEnd(String(btnValue), 4)
     .reduce((acc, item, index) => {
       if (!Number(item)) {
         return acc;
@@ -57,21 +65,30 @@ const unitFormat = (e) => {
 };
 /**
  *
- * @param {*} e get button value
+ * @param {*} event get button value
  */
-const onClickBtn = (event) => (btnValue.value = event.b_val);
+const onClickBtn = (event) => {
+  updateModal("on");
+  btnValue.value = event.b_val;
+  nextTick(() => toolPosX()); // DOM 업데이트 후 toolPosX 실행
+};
 
 /**
  * transform value to % in progress value
  */
-const progressVal = () => (btnValue.value / MAX_VALUE) * 100;
+const progressVal = () => {
+  if (btnValue.value > getMaxValue.value) {
+    return 100;
+  } else {
+    return (btnValue.value / MAX_VALUE) * 100;
+  }
+};
 
 /**
  * set position 'toolbox' And 'toolbox pointer'
  */
 const toolPosX = () => {
   const GUIDE_VALUE = 6;
-  // const GUIDE_VALUE = 1;
   let ProWid = progressWrap?.value?.clientWidth; //dynamic progress-wrap width value
   let Tool = toolBox?.value; // tool-box ref
   let ToolWid = Tool?.clientWidth; // dynamic tool-box width value
@@ -103,40 +120,65 @@ const toolPosX = () => {
   }
 };
 
-onMounted(() => {
-  window.addEventListener("resize", toolPosX);
-  toolPosX();
+/**
+ * insert input value to btnValue
+ */
+const handlerInput = () => {
+  btnValue.value = inputValue.value;
+  updateModal("on"); // open modal
+  nextTick(() => toolPosX()); // launch after DOM update
+};
 
-  setTimeout(() => {
-    updateLocation();
-  }, 2000);
-});
+/**
+ *
+ * @param {*} event get input value
+ * @desc  check input value in string
+ */
+const onValidInput = (event) => {
+  const value = event.target.value;
+  const regex = /^[0-9]*$/;
+
+  if (!regex.test(value)) {
+    event.target.value = value.slice(0, -1);
+    inputValue.value = event.target.value;
+  } else {
+    inputValue.value = value;
+  }
+};
+
+onMounted(() => window.addEventListener("resize", toolPosX));
 onBeforeUnmount(() => window.removeEventListener("resize", toolPosX));
-onUpdated(() => toolPosX());
 </script>
 
 <template>
   <div class="container">
-    <h2>{{ modalState }}</h2>
-    <button @click="updateModal('on')">zz</button>
-    <button @click="updateModal('off')">zz</button>
     <h1 style="text-align: center">Tool Tip</h1>
-    <button @click="open = true">Open Modal</button>
-
+    <button @click="updateModal('on')">Open Modal</button>
     <div class="button-wrap">
       <h3>buttons</h3>
       <button class="button" @click="onClickBtn(btn)" v-for="(btn, idx) in BTNS_VALUE" type="button" :key="idx">{{ btn.b_val !== 0 ? unitFormat(btn.b_val) + "원" : "0원" }}</button>
     </div>
+
+    <div class="input-wrap">
+      <label for="number-input">인풋</label>
+      <input id="number-input" type="text" v-model="inputValue" @input="onValidInput" /><br />
+      <button type="button" @click="handlerInput">확인</button>
+    </div>
+  </div>
+
+  <Modal>
     <div class="progress-wrap">
       <div class="progress-inner">
         <span ref="toolBox" class="tool-box">{{ comma(btnValue) + "원" }}</span>
         <div ref="pointer" class="pointer"></div>
         <progress ref="progressWrap" class="progress" :value="progressVal()" max="100"></progress>
       </div>
+      <div class="guide-text">
+        <span>{{ comma(getMaxValue) }}</span>
+      </div>
     </div>
-  </div>
-
-  <Modal />
+    <button @click="updateModal('off')">Close</button>
+  </Modal>
 </template>
 
 <style scoped>
@@ -153,6 +195,9 @@ onUpdated(() => toolPosX());
 .progress {
   width: 100%;
   transition: 0.3s;
+}
+.guide-text {
+  text-align: right;
 }
 .button-wrap {
   margin-block: 20px;
