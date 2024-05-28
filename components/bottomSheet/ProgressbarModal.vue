@@ -60,8 +60,7 @@ export default {
 		};
 		// 툴팁 이동값 계산
 		const inputValue = computed(() => {
-			const valueWidth = (priceValue.value / 100) * boxWidth.value;
-			console.log((priceValue.value / 100) * boxWidth.value);
+			const valueWidth = (sliderValue.value / 100) * boxWidth.value;
 			const tipHalf = tipWidth.value / 2;
 			const result =
 				valueWidth > boxWidth.value - tipHalf
@@ -72,7 +71,7 @@ export default {
 		// 툴팁 화살표 이동값 계산
 		const arrowValue = computed(() => {
 			// 툴팁절반 tipHalf
-			const valueWidth = (priceValue.value / 100) * boxWidth.value;
+			const valueWidth = (sliderValue.value / 100) * boxWidth.value;
 			const tipHalf = tipWidth.value / 2;
 			let result = null;
 			// 요건의 6px + 화살표 넓이 6px = 12px
