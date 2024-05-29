@@ -1,29 +1,42 @@
 <script setup>
-defineProps(['bottomSheetState']);
+defineProps({
+	isBottomSheet: Boolean,
+});
 defineEmits(['bottomSheetState']);
 </script>
 
 <template>
-	<teleport to="#main">
-		<section></section>
-	</teleport>
+	<Transition :duration="550" name="slide-fade">
+		<div v-if="isBottomSheet" class="bottom_sheet">
+			<div class="bottom_sheet_wrap">
+				<div class="bottom_sheet_bar"></div>
+				<div class="bottom_sheet_inner">
+					<slot></slot>
+				</div>
+				<div class="btn_area">
+					<button @click="$emit('bottomSheetState')">확인</button>
+				</div>
+			</div>
+			<div class="dim" @click="$emit('bottomSheetState')"></div>
+		</div>
+	</Transition>
 </template>
 
 <style scoped>
-/*바텀시트 스타일*/
-section {
+/*바텀시트*/
+.bottom_sheet {
 	position: fixed;
 	inset: 0;
 	width: 100%;
-	height: 100dvh;
+	height: 100vh;
 	z-index: 100;
 }
 .bottom_sheet_wrap {
 	position: absolute;
 	bottom: 0;
 	width: 100%;
-	max-height: 80%;
-	min-height: 50%;
+	max-height: 85vh;
+	min-height: 50vh;
 	border-radius: 2rem 2rem 0 0;
 	background: #fff;
 	z-index: 101;
@@ -45,8 +58,8 @@ section {
 }
 .bottom_sheet_inner {
 	padding: 2rem;
-	max-height: 25rem;
-	min-height: 11.5rem;
+	max-height: calc(80vh - 10rem);
+	min-height: calc(50vh - 12rem);
 	overflow-y: auto;
 }
 .btn_area {
@@ -59,6 +72,7 @@ section {
 	color: #333;
 	padding: 1rem;
 	border-radius: 0.5rem;
+	cursor: pointer;
 }
 .dim {
 	position: absolute;
@@ -68,66 +82,23 @@ section {
 	background: rgba(0, 0, 0, 0.5);
 	z-index: 100;
 }
-/*프로그레스바 스타일*/
-.progress_area {
-	position: relative;
-	margin-top: 50px;
+
+/* 위에서 올라오는 동작 ON */
+.slide-fade-enter-active,
+.slide-fade-leave-active {
+	transition: all 0.4s ease-in-out;
 }
-.progress_area progress {
-	width: 100%;
-	height: 16px;
-	appearance: none;
-}
-.progress_area progress::-webkit-progress-bar {
-	overflow: hidden;
-	background: #f0f0f0;
-	border: 0 none;
-	border-radius: 12px;
-}
-.progress_area progress::-webkit-progress-value {
-	background: #43f15e;
-	border-radius: 12px;
-	transition: all 0.3s;
-}
-.progress_area .tooltip {
-	display: flex;
-	position: absolute;
-	bottom: 100%;
-	align-items: center;
-	justify-content: center;
-	margin-top: 0;
-	margin-bottom: 10px;
-	padding: 6px 8px;
-	background: #000;
-	border-radius: 4px;
-	color: #fff;
-	font-size: 13px;
-	line-height: 1;
-	white-space: nowrap;
+.slide-fade-enter-from,
+.slide-fade-leave-to {
 	opacity: 0;
-	transform: translateX(-50%);
 }
-.progress_area .tooltip.on {
-	opacity: 1;
-	transition: opacity 0.3s;
+.slide-fade-enter-active .bottom_sheet_wrap,
+.slide-fade-leave-active .bottom_sheet_wrap {
+	transition: all 0.4s ease-in-out;
 }
-.progress_area .tooltip::before {
-	display: block;
-	content: '';
-	position: absolute;
-	top: 100%;
-	left: 50%;
-	margin-left: v-bind(-pointPos + 'px');
-	transform: translateX(-50%);
-	border-top: 6px solid #000;
-	border-left: 4px solid transparent;
-	border-right: 4px solid transparent;
-}
-.progress_area span {
-	display: block;
-	margin: 4px 0;
-	color: #787878;
-	font-size: 13px;
-	text-align: right;
+.slide-fade-enter-from .bottom_sheet_wrap,
+.slide-fade-leave-to .bottom_sheet_wrap {
+	transform: translateY(50%);
+	opacity: 0;
 }
 </style>
