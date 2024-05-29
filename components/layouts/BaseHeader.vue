@@ -1,6 +1,6 @@
 <script setup>
 import BaseLogo from '@/components/common/BaseLogo.vue';
-let a = 1111;
+const a = 1111;
 </script>
 
 <template>
