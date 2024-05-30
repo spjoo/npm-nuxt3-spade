@@ -1,64 +1,70 @@
-<!-- 
-  1. clip path 방법
-  2. svg https://developer.mozilla.org/en-US/docs/Web/SVG/Element/feMorphology
-  3. ?
- -->
 <template>
-  <h1>mask</h1>
-  <div class="poligon">
-    <img class="" src="/img/sss.jpg" alt="" />
-  </div>
+  <!-- 하트, 클로버, 스페이드, 다이아몬드 + 이미지의 두 모양의 버튼을 만든다. -->
+  <section class="svg-wrap">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+      <!-- 클리핑 모양 표시 border -->
+      <g style="filter: drop-shadow(-10px 9px 2px black)">
+        <path
+          d="M 200,20
+               L 250,140
+               L 390,140
+               L 270,220
+               L 310,350
+               L 200,270
+               L 90,350
+               L 130,220
+               L 10,140
+               L 150,140 Z"
+          fill="none"
+          stroke="red"
+          stroke-width="3"
+        />
+      </g>
+      <defs>
+        <clipPath id="clip_shape">
+          <!-- 클리핑 -->
+          <path
+            d="M 200,20
+                 L 250,140
+                 L 390,140
+                 L 270,220
+                 L 310,350
+                 L 200,270
+                 L 90,350
+                 L 130,220
+                 L 10,140
+                 L 150,140 Z"
+          />
+        </clipPath>
+      </defs>
+      <!-- 클리핑을 적용할 이미지 -->
+      <image href="/img/sss.jpg" width="100%" style="clip-path: url(#clip_shape)" />
+    </svg>
+    <path
+      d="M 50,10 
+           A 40,40 0 0,1 90,50 
+           A 40,40 0 0,1 50,90 
+           A 40,40 0 0,1 10,50 
+           A 40,40 0 0,1 50,10 
+           Z"
+      fill="red"
+    />
+  </section>
+
+  <section class="buttons-wrap">
+    <button type="button">별</button>
+  </section>
 </template>
 
-<script setup>
-console.log("1");
+<script>
+export default {
+  name: "App",
+};
 </script>
 
 <style scoped>
-h1 {
-  font-size: 10px;
-}
-
-div {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-}
-
-.image-container {
-  width: 300px;
-  height: 300px;
-  position: relative;
-  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
-  filter: drop-shadow(0 0 10px rgba(0, 0, 0, 0.5));
-  border: 15px solid transparent; /* 원하는 경계선 색상과 두께 */
-}
-
-.heart-image {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  clip-path: inherit; /* 부모의 clip-path를 상속 */
-}
-
-.poligon {
-  display: inline-block;
-  position: relative;
-  width: 150px;
-  height: 150px;
-  background: red;
-  box-sizing: border-box;
-  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
-  filter: drop-shadow(0 0 5px #000);
-}
-.poligon img {
-  position: absolute;
-  top: 2px; /* equal to border thickness */
-  left: 2px; /* equal to border thickness */
-  width: 146px; /* container height - (border thickness * 2) */
-  height: 146px; /* container height - (border thickness * 2) */
-  clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
-  filter: drop-shadow(0 0 5px #000);
+svg {
+  width: 200px;
+  height: 200px;
 }
 </style>
