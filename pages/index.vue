@@ -5,7 +5,7 @@
 // Tooltip의 화살표는 항상 Tooltip 영역 범위 안에 있어야 하며 좌/우측 최소 6px의 마진이 있어야 함
 // Tooltip은 Progress bar의 영역을 벗어날 수 없음
 
-import { ref, reactive, computed, onMounted, onUpdated } from 'vue';
+import { ref, reactive, computed, onUpdated } from 'vue';
 import BottomSheet from '../../components/common/BottomSheet.vue';
 
 const isOpenBottomsheet = ref(false);
