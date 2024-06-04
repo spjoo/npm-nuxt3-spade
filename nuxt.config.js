@@ -8,11 +8,11 @@ export default defineNuxtConfig({
     dirs: [
       {
         path: "@/components",
-        pathPrefix: true,
-      },
-    ],
+        pathPrefix: true
+      }
+    ]
   },
-  css: [],
+  css: ['@/assets/style/base.scss'],
   buildDir: "dist",
   modules: ["@nuxt/eslint"],
   alias: {
@@ -20,11 +20,11 @@ export default defineNuxtConfig({
     "~": fileURLToPath(new URL("./", import.meta.url)),
     "@@": fileURLToPath(new URL("./", import.meta.url)),
     "~~": fileURLToPath(new URL("./", import.meta.url)),
-    "@images": fileURLToPath(new URL("./assets/images/", import.meta.url)),
+    "@images": fileURLToPath(new URL("./assets/images/", import.meta.url))
   },
   lint: {
     eslint: {
-      extensions: ["js", "vue"],
-    },
-  },
+      extensions: ["js", "vue"]
+    }
+  }
 });

@@ -1,25 +1,22 @@
-{
-  "env": {
-    "browser": true,
-    "es2020": true
+/* eslint-env node */
+require('@rushstack/eslint-patch/modern-module-resolution');
+
+module.exports = {
+  root: true,
+  extends: [
+    'plugin:vue/vue3-essential',
+    'eslint:recommended',
+    '@vue/eslint-config-prettier',
+  ],
+  env: {
+    'vue/setup-compiler-macros': true,
   },
-  "parser": "vue-eslint-parser",
-  "parserOptions": {
-    "vueFeatures": {
-      "filter": true,
-      "interpolationAsNonHTML": true,
-      "styleCSSVariableInjection": true
-    }
+  parserOptions: {
+    ecmaVersion: '2022',
+    sourceType: 'module',
   },
   "plugins": [
     "prettier"
-  ],
-  "extends": [
-    // add your eslint config extends here
-    "eslint:recommended",
-    "plugin:nuxt/recommended",
-    "plugin:vue/vue3-recommended", // for Vue 3
-    "plugin:prettier/recommended"
   ],
   "rules": {
     "import/extensions": "off",
