@@ -54,15 +54,26 @@ const maskButtons = reactive([
 
 const makeClipPath = () => {
   let clipPath = null;
+  const w = width.value;
+  const h = height.value;
   switch(activeFigure.value) {
+    case 'heart':
+      clipPath = `m${w / 2} ${h / 4} Q ${w / 2 - w / 10} 0 ${w / 4} 0 Q 0 0 0 ${h / 4} Q 0 ${h / 2 - w / 10} ${w / 10} ${h / 2} L ${w / 2} ${h} L ${w - w / 10} ${h / 2} Q ${w} ${h / 2 - w / 10} ${w} ${h / 4} Q ${w} 0 ${w - w / 4} 0 Q ${w / 2 + w / 10} 0 ${w / 2} ${h / 4} z`;
+      break;
+    case 'spade':
+      clipPath = `m${w / 2} 0 L ${w / 4} ${h / 2  - h / 4} Q ${w / 10} ${h / 2 - w / 10} ${w / 10} ${h / 2} Q ${w / 10} ${h / 2 + h / 4} ${w / 4} ${h / 2 + h / 4} Q ${w / 2 - 5} ${h / 2 + h / 4} ${w / 2 - 5} ${h / 2 + h / 8} Q ${w / 2 - 5} ${h} ${w / 2 - w / 4} ${h} L ${w - w / 4} ${h} Q ${w / 2 + 5} ${h} ${w / 2 + 5} ${h / 2 + h / 8} Q ${w / 2 + 5} ${h / 2 + h / 4} ${w - w / 4} ${h / 2 + h / 4} Q ${w - w / 10} ${h / 2 + h / 4} ${w - w / 10} ${h / 2} Q ${w - w / 10} ${h / 2 - w / 10} ${w - w / 4} ${h / 2 - h / 4} L ${w / 2} 0`;
+      break;
+    case 'clover':
+      clipPath = `m${w / 2} 0 Q ${w / 4 + w / 50} 0 ${w / 4} ${h / 4} Q ${w / 4} ${h / 2 - 10 - h / 10} ${w / 2 - w / 5} ${h / 2 - h / 10} Q ${w / 10} ${h / 2 - h / 10} ${w / 10} ${h / 2 + 10} Q ${w / 10} ${h - h / 4 - w / 50} ${w / 4} ${h - h / 4} Q ${w / 2 - 5 - w / 10} ${h - h / 4} ${w / 2 - 5} ${h / 2 + h / 10} Q ${w / 2} ${h} ${w / 4} ${h} L ${w - w / 4} ${h} Q ${w / 2} ${h} ${w / 2 + 5} ${h / 2 + h / 10} Q ${w / 2 + w / 10} ${h / 2 + h / 10 + w / 10} ${w - w / 4} ${h - h / 4} Q ${w - w / 10} ${h - h / 4} ${w - w / 10} ${h / 2 + 10} Q ${w - w / 10} ${h / 2 - 10 - w / 10} ${w / 2 + w / 5} ${h / 2 - h / 10} Q ${w - w / 4} ${h / 2 - h / 10 - w / 50} ${w - w / 4} ${h / 4} Q ${w - w / 4 - w / 50} 0 ${w / 2} 0`;
+      break;
     case 'diamond':
-      clipPath = `m${width.value / 2} 0 Q ${width.value / 2} ${height.value / 2} 0 ${height.value / 2} Q ${width.value / 2} ${height.value / 2} ${width.value / 2} ${height.value} Q ${width.value / 2} ${height.value / 2} ${width.value} ${height.value / 2} Q ${width.value / 2} ${height.value / 2} ${width.value / 2} 0`;
+      clipPath = `m${w / 2} 0 Q ${w / 2 - w / 5} ${h / 2} 0 ${h / 2} Q ${w / 2 - w / 5} ${h / 2} ${w / 2} ${h} Q ${w / 2 + w / 5} ${h / 2} ${w} ${h / 2} Q ${w / 2 + w / 5} ${h / 2} ${w / 2} 0`;
       break;
     case 'figure1':
-      clipPath = `m${width.value / 10} 0 L 0 ${width.value / 10} L 0 ${height.value} L${width.value - width.value / 10} ${height.value} L ${width.value} ${height.value - width.value / 10} L ${width.value} 0 z`;
+      clipPath = `m${w / 10} 0 L 0 ${w / 10} L 0 ${h} L${w - w / 10} ${h} L ${w} ${h - w / 10} L ${w} 0 z`;
       break;
     case 'figure2':
-      clipPath = `m${width.value / 10} 0 Q ${width.value / 10} ${width.value / 10} 0 ${width.value / 10} L 0 ${height.value} L${width.value - width.value / 10} ${height.value} Q ${width.value - width.value / 10} ${height.value - width.value / 10} ${width.value} ${height.value - width.value / 10} L ${width.value} 0 z`;
+      clipPath = `m${w / 10} 0 Q ${w / 10} ${w / 10} 0 ${w / 10} L 0 ${h} L${w - w / 10} ${h} Q ${w - w / 10} ${h - w / 10} ${w} ${h - w / 10} L ${w} 0 z`;
       break;
   }
   image.value.style.clipPath = `path('${clipPath}')`
@@ -99,7 +110,6 @@ const handleButtonChange = (index) => {
 <style scoped lang="scss">
 .contents {
   padding: 20px;
-  background-color: black;
   .button_section {
     ul {
       display: flex;
@@ -121,8 +131,10 @@ const handleButtonChange = (index) => {
     }
   }
   .image_section {
+    position: relative;
     margin-top: 20px;
     .image_wrapper {
+      filter: drop-shadow(-1px 8px 12px rgba(50, 50, 0, 0.5));
       img {
         width: 100%;
       }
