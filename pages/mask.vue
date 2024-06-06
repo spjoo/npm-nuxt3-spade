@@ -1,24 +1,12 @@
-<script setup>
-const shapeTypes = ref([
-  "heart",
-  "clover",
-  "spade",
-  "diamond",
-  "other1",
-  "other2",
-]);
-</script>
+<script setup></script>
 <template>
-  <button type="button" v-for="(item, i) in shapeTypes" :key="i">
-    {{ item }}
-  </button>
   <div class="shapes-box">
-    <div class="heart"></div>
-    <div class="clover"></div>
-    <div class="spade"></div>
-    <div class="diamond"></div>
-    <div class="other1"></div>
-    <div class="other2"></div>
+    <div class="heart"><img src="@/assets/images/cat.jpg" alt="" /></div>
+    <div class="clover"><img src="@/assets/images/cat.jpg" alt="" /></div>
+    <div class="spade"><img src="@/assets/images/cat.jpg" alt="" /></div>
+    <div class="diamond"><img src="@/assets/images/cat.jpg" alt="" /></div>
+    <div class="other1"><img src="@/assets/images/cat.jpg" alt="" /></div>
+    <div class="other2"><img src="@/assets/images/cat.jpg" alt="" /></div>
   </div>
 </template>
 <style scoped>
@@ -27,37 +15,35 @@ button {
 }
 .shapes-box > div {
   margin: 20px;
-  background: url(@/assets/images/cat.jpg) no-repeat center center/cover;
+  filter: drop-shadow(0 0 10px hsl(349, 100%, 62%));
 }
-.heart {
+.shapes-box > div img {
   width: 150px;
-  height: 150px;
-  border-image: radial-gradient(transparent 69%, #fff 70%) 84.5% fill/100%;
-  clip-path: polygon(0 0, 100% 0, 100% 41%, 50% 91%, 0 41%);
+  aspect-ratio: 1;
+  object-fit: cover;
 }
-.clover {
-  width: 150px;
-  height: 150px;
-  border-image: radial-gradient(transparent 69%, #fff 70%) 84.5% fill/100%;
+.heart img {
+  -webkit-mask-box-image: radial-gradient(#000 69%, #0000 70%) 84.5%/50%;
+  clip-path: polygon(-42% 0, 50% 91%, 142% 0);
 }
-.spade {
-  width: 150px;
-  height: 150px;
-  border-image: radial-gradient(transparent 69%, #fff 70%) 84.5% fill/100%;
-  clip-path: polygon(0 100%, 100% 100%, 100% 59%, 50% 9%, 0 59%);
+
+.clover img {
+  -webkit-mask-box-image: radial-gradient(#000 69%, #0000 70%) 84.5%/50%;
 }
-.diamond {
-  width: 150px;
-  height: 150px;
+
+.spade img {
+  -webkit-mask-box-image: radial-gradient(#000 69%, #0000 70%) 84.5% / 50%;
+  clip-path: polygon(50% 9%, 100% 59%, 100% 100%, 0% 100%, 0 59%);
+}
+.diamond img {
   clip-path: polygon(25% 0%, 75% 0%, 100% 35%, 50% 100%, 0 35%);
 }
-.other1 {
-  width: 150px;
-  height: 150px;
+.other1 img {
   clip-path: polygon(15% 0, 100% 0, 100% 85%, 85% 100%, 0 100%, 0 15%);
 }
-.other2 {
-  width: 150px;
-  height: 150px;
+.other2 img {
+  mask-image: radial-gradient(circle at left top, transparent 10%, black 10%),
+    radial-gradient(circle at right bottom, black 10%, transparent 10%);
+  mask-composite: exclude, add;
 }
 </style>
