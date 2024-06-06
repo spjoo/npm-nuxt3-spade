@@ -42,7 +42,6 @@ const changeShapeHandler = (keyValue) => (currentShape.value = keyValue);
       <!-- 클리핑을 적용할 이미지 -->
       <image href="/img/sss.jpg" width="100%" style="clip-path: url(#clip_shape)" />
     </svg>
-    <!-- <path :d="shape.heart.path" fill="red" /> -->
   </section>
 
   <section class="buttons-wrap">
@@ -55,6 +54,5 @@ svg {
   width: 100%;
   height: 100%;
   border: 1px solid blue;
-  aspect-ratio: 1/1;
 }
 </style>
