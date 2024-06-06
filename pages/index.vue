@@ -1,70 +1,60 @@
+<script setup>
+const shape = reactive({
+  heart: {
+    path: "M 200,350 C -200,90 200,-100 200,150 C  200,-100 600,90 200,350 Z",
+  },
+  diamond: {
+    path: "M 30,200 L 200,100 L 370,200 L 200,300 Z",
+  },
+  spade: {
+    path: "M 150,400 L 250,400 L 200,300 Z M 200,300 C 200,300 500,400 200,50 Z M 200,300 C 200,300 -100,400 200,50 Z",
+  },
+  clover: {
+    path: "M 150,400 L 250,400 L 200,200 Z M 120 250 m -50, 0 a 50,50 0 1,0 150,0 a 50,50 0 1,0 -150,0 Z M 220 250 m -50, 0 a 50,50 0 1,0 150,0 a 50,50 0 1,0 -150,0 Z M 170 160 m -50, 0 a 50,50 0 1,0 150,0 a 50,50 0 1,0 -150,0",
+  },
+  customShape1: {
+    path: "M 50,50 L 250, 50 S 240,100 300, 90 L 300 300 L 100,300 S 100,240 50,280 L 50 280 Z ",
+  },
+  customShape2: {
+    path: "M 50,50 L 250, 50 L 300,90 L 300 300 L 100,300  L 50 280 Z ",
+  },
+});
+
+const currentShape = ref("customShape2");
+
+const changeShapeHandler = (keyValue) => (currentShape.value = keyValue);
+</script>
+
 <template>
   <!-- 하트, 클로버, 스페이드, 다이아몬드 + 이미지의 두 모양의 버튼을 만든다. -->
   <section class="svg-wrap">
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
       <!-- 클리핑 모양 표시 border -->
-      <g style="filter: drop-shadow(-10px 9px 2px black)">
-        <path
-          d="M 200,20
-               L 250,140
-               L 390,140
-               L 270,220
-               L 310,350
-               L 200,270
-               L 90,350
-               L 130,220
-               L 10,140
-               L 150,140 Z"
-          fill="none"
-          stroke="red"
-          stroke-width="3"
-        />
+      <g style="filter: drop-shadow(-20px 15px 2px black)">
+        <path :d="shape[currentShape].path" fill="black" stroke-width="2" />
       </g>
       <defs>
         <clipPath id="clip_shape">
           <!-- 클리핑 -->
-          <path
-            d="M 200,20
-                 L 250,140
-                 L 390,140
-                 L 270,220
-                 L 310,350
-                 L 200,270
-                 L 90,350
-                 L 130,220
-                 L 10,140
-                 L 150,140 Z"
-          />
+          <path :d="shape[currentShape].path" />
         </clipPath>
       </defs>
       <!-- 클리핑을 적용할 이미지 -->
       <image href="/img/sss.jpg" width="100%" style="clip-path: url(#clip_shape)" />
     </svg>
-    <path
-      d="M 50,10 
-           A 40,40 0 0,1 90,50 
-           A 40,40 0 0,1 50,90 
-           A 40,40 0 0,1 10,50 
-           A 40,40 0 0,1 50,10 
-           Z"
-      fill="red"
-    />
+    <!-- <path :d="shape.heart.path" fill="red" /> -->
   </section>
 
   <section class="buttons-wrap">
-    <button type="button">별</button>
+    <button v-for="(item, index) in shape" :key="index" type="button" @click="changeShapeHandler(index)">{{ index }}</button>
   </section>
 </template>
 
-<script>
-export default {
-  name: "App",
-};
-</script>
-
 <style scoped>
 svg {
-  width: 200px;
-  height: 200px;
+  width: 100%;
+  height: 100%;
+  border: 1px solid blue;
+  aspect-ratio: 1/1;
 }
 </style>
