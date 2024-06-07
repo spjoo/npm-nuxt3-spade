@@ -1,4 +1,6 @@
-<script setup></script>
+<script setup>
+import BaseHeader from '@/components/layouts/BaseHeader.vue';
+</script>
 
 <template>
 	<div class="wrap">
