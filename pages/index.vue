@@ -42,11 +42,11 @@ clip-path, svg mask 처리 방식있음
 			</li>
 		</ul>
 
-		<div class="imgarea_inner">
-			<div ref="imgareaRef" class="imgarea" :class="shapeName">
-				<img src="../assets/img/img.png" alt="" />
-			</div>
-		</div>
+      <div class="imgarea_inner">
+        <div ref="imgareaRef" class="imgarea" :class="shapeName">
+          <img src="../assets/img/img.png" alt="" />
+        </div>
+      </div>
 
 		<!--		<svg viewBox="-450 -450 900 900">-->
 		<!--		<svg :viewBox="`${-svgWidth / 2} ${-svgHeight / 2} ${svgWidth} ${svgHeight}`" width="480px" height="480px">-->
@@ -119,8 +119,8 @@ main {
 	filter: drop-shadow(0 0 0.5rem rgba(0, 0, 0, 0.5));
 }
 .imgarea {
-	width: 30rem;
-	height: 30rem;
+	width: 48rem;
+	height: 48rem;
 	margin: 0 auto;
 	overflow: hidden;
 	margin-top: 5rem;
