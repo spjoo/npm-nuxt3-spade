@@ -1,128 +1,93 @@
 <script setup>
-import { ref, nextTick, computed, watch } from 'vue';
-import BottomSheet from '../components/modal/bottomSheet.vue';
+import { onMounted, ref } from 'vue';
 
-const priceList = [0, 5000, 20000, 50000, 90000, 95000, 100000];
-const arrowMargin = 6; //최소마진
-const priceLast = priceList.length - 1;
-const lastPrice = priceList[priceLast];
-const currentPrice = ref(priceList[0]);
-const toolTipStatus = ref(false);
-const tooltipRef = ref(null);
-const progressBarRef = ref(null);
-const toolTipLeft = ref(0);
-const toolTipRight = ref(0);
-const toolTipPosX = ref(0);
-const pointPos = ref(0);
-const inputValue = ref('');
+const btnList = [
+	{ shape: '하트', name: 'heart' },
+	{ shape: '클로버', name: 'clover' },
+	{ shape: '스페이드', name: 'spade' },
+	{ shape: '다이아몬드', name: 'diamond' },
+	{ shape: '도형01', name: 'shape01' },
+	{ shape: '도형02', name: 'shape02' },
+];
 
-const isBottomSheet = ref(false);
+const shapeName = ref();
+const imgareaRef = ref();
+const svgWidth = ref(0);
+const svgHeight = ref(0);
 
-const progressValue = computed(() => {
-	return (currentPrice.value / lastPrice) * 100;
-});
-
-const widthCalc = () => {
-	if (!tooltipRef.value || !progressBarRef.value) return;
-	const toolTipWidth = tooltipRef.value.offsetWidth;
-	const leftOffset = tooltipRef.value.offsetLeft;
-	const progressWidth = progressBarRef.value.offsetWidth;
-
-	//툴팁 왼쪽 값
-	toolTipLeft.value = Math.floor(toolTipWidth / 2 - leftOffset + toolTipPosX.value);
-	//툴팁 오른쪽 값
-	toolTipRight.value = Math.floor(progressWidth - (toolTipWidth / 2 + leftOffset - toolTipPosX.value));
-
-	//초기화
-	toolTipPosX.value = 0;
-	pointPos.value = 0;
-
-	//왼쪽
-	if (-toolTipLeft.value < 0) {
-		toolTipPosX.value = toolTipLeft.value;
-		pointPos.value = toolTipPosX.value;
-
-		if (toolTipWidth / 2 - pointPos.value < arrowMargin) {
-			pointPos.value = toolTipPosX.value - arrowMargin - 4;
-		}
-	}
-	//오른쪽
-	else if (toolTipRight.value < 0) {
-		toolTipPosX.value = toolTipRight.value;
-		pointPos.value = toolTipPosX.value;
-
-		if (toolTipWidth / 2 + toolTipPosX.value < arrowMargin) {
-			pointPos.value = toolTipPosX.value + arrowMargin + 4;
-		}
-	}
+const imgMask = v => {
+	shapeName.value = v;
 };
 
-const openBottomSheet = (name, data) => {
-	if (name === 'price_btn') {
-		currentPrice.value = data;
-		toolTipStatus.value = true;
-	}
-	isBottomSheet.value = true;
-};
-const isBottomSheetClose = () => {
-	isBottomSheet.value = false;
-	inputValue.value = '';
-};
-
-const onChange = e => {
-	if (e.target.value > 100000) {
-		alert('최대 100,000까지 입력가능');
-		e.target.value = '';
-	}
-	e.target.value = e.target.value.slice(0, 6);
-};
-
-const changePrice = () => {
-	toolTipStatus.value = true;
-	currentPrice.value = Number(inputValue.value);
-	nextTick(() => {
-		widthCalc();
-	});
-};
-watch(isBottomSheet, () => {
-	nextTick(() => {
-		widthCalc();
-	});
+onMounted(() => {
+	const w = imgareaRef.value.offsetWidth;
+	const h = imgareaRef.value.offsetHeight;
+	svgWidth.value = w;
+	svgHeight.value = h;
 });
 </script>
 
+<!--
+1. 하트, 클로버, 스페이드 ,다이아몬드 + 이미지의 두 모양의 버튼을 만든다.
+2. 하단에 원하는 이미지를 배치한다.
+3. 버튼을 누를 경우 각 모양에 맞게 이미지가 잘리도록 처리한다.
+clip-path, svg mask 처리 방식있음
+-->
+
 <template>
 	<main id="main">
-		<ul class="price_area">
-			<li v-for="(price, i) in priceList" :key="i">
-				<button @click="openBottomSheet('price_btn', price)">
-					{{ price.toLocaleString() }}
-				</button>
+		<ul class="btn_list">
+			<li v-for="(item, i) in btnList" :key="i">
+				<button @click="imgMask(item.name)">{{ item.shape }}</button>
 			</li>
 		</ul>
-	</main>
 
-	<Teleport to="body">
-		<BottomSheet :is-bottom-sheet="isBottomSheet" @bottom-sheet-state="isBottomSheetClose">
-			<div class="progress_area">
-				<progress ref="progressBarRef" max="100" :value="progressValue"></progress>
-				<p
-					ref="tooltipRef"
-					class="tooltip"
-					:class="toolTipStatus ? 'on' : ''"
-					:style="[{ left: `${progressValue}%` }, { marginLeft: `${toolTipPosX}px` }]"
-				>
-					{{ currentPrice.toLocaleString() }}원
-				</p>
-				<span>{{ lastPrice.toLocaleString() }}원</span>
-
-				<div class="change_price">
-					<input v-model="inputValue" type="text" placeholder="최대 100,000까지" @input="onChange($event)" />
-					<button @click="changePrice">적용</button>
-				</div>
+		<div class="imgarea_inner">
+			<div ref="imgareaRef" class="imgarea" :class="shapeName">
+				<img src="../assets/img/img.png" alt="" />
 			</div>
-		</BottomSheet>
-	</Teleport>
+		</div>
+
+		<!--		<svg viewBox="-450 -450 900 900">-->
+		<!--		<svg :viewBox="`${-svgWidth / 2} ${-svgHeight / 2} ${svgWidth} ${svgHeight}`" width="480px" height="480px">-->
+		<!--			&lt;!&ndash;하트&ndash;&gt;-->
+		<!--			<clipPath id="heart_shape">-->
+		<!--				<path-->
+		<!--					d="M 10, 30 A 20, 20 0, 0, 1 50, 30 A 20, 20 0, 0, 1 90, 30 Q 90, 60 50, 90 Q 10, 60 10, 30 z"-->
+		<!--					style="transform: scale(4.8)"-->
+		<!--				/>-->
+		<!--			</clipPath>-->
+
+		<!--			&lt;!&ndash;클로버&ndash;&gt;-->
+		<!--			<clipPath id="clover_shape">-->
+		<!--				<path-->
+		<!--					d="M145,225 C83,5 412,19 342,225 C570,201 484,538 269,387 L 293, 480 L 183, 480 L 208, 384 C-42,546 -58,162 145,225 z"-->
+		<!--				/>-->
+		<!--			</clipPath>-->
+
+		<!--			&lt;!&ndash;스페이드&ndash;&gt;-->
+		<!--			<clipPath id="spade_shape">-->
+		<!--				<path-->
+		<!--					d="M6,257 C 25,200 89, 210 240, 30 C 320, 130 424, 211 445, 230 C507,271 466,461 270,387 L 293, 480 L 183, 480 L 208, 384 C14,479 -24,273 17,236 z"-->
+		<!--				/>-->
+		<!--			</clipPath>-->
+
+		<!--			&lt;!&ndash;다이아몬드&ndash;&gt;-->
+		<!--			<clipPath id="diamond_shape">-->
+		<!--				<polygon points="50% 0, 90% 50%, 50% 100%, 10% 50%" />-->
+		<!--			</clipPath>-->
+
+		<!--			&lt;!&ndash;모양01&ndash;&gt;-->
+		<!--			<clipPath id="shape01_shape">-->
+		<!--				<polygon points="25% 0, 100% 0, 100% 75%, 75% 100%, 0% 100%, 0% 25%" />-->
+		<!--			</clipPath>-->
+
+		<!--			&lt;!&ndash;모양02&ndash;&gt;-->
+		<!--			<clipPath id="shape02_shape">-->
+		<!--				<path d="M0,96 C -84,96 77, 123 96, 0  L 480, 0 L 480, 384 C 428, 383 370, 393 350, 480 L 0 480 z" />-->
+		<!--			</clipPath>-->
+		<!--		</svg>-->
+	</main>
 </template>
 
 <style scoped>
@@ -130,122 +95,63 @@ main {
 	width: 100%;
 	margin: 0 auto;
 }
-.price_area {
+.btn_list {
 	display: flex;
-	flex-wrap: wrap;
-	gap: 0.8rem;
-	list-style: none;
-	margin: 0 auto;
+	justify-content: center;
+	align-items: center;
+	margin: 0;
 	padding: 0;
+	list-style: none;
+	gap: 0.3rem;
 }
-.price_area button {
-	min-width: 100px;
-	padding: 4px 8px;
+.btn_list > li > button {
+	padding: 0.4rem;
 	color: #555;
-	border: 1px solid #ccc;
+	border: none;
 	background: #f0f0f0;
 	cursor: pointer;
+	font-size: 1rem;
+	line-height: 1rem;
+	width: 7rem;
+	height: 3rem;
 }
-/*프로그레스바 스타일*/
-.progress_area {
-	position: relative;
-	margin-top: 50px;
+.imgarea_inner {
+	filter: drop-shadow(0 0 0.5rem rgba(0, 0, 0, 0.5));
 }
-.progress_area progress {
-	width: 100%;
-	height: 16px;
-	appearance: none;
-}
-.progress_area progress::-webkit-progress-bar {
+.imgarea {
+	width: 30rem;
+	height: 30rem;
+	margin: 0 auto;
 	overflow: hidden;
-	background: #f0f0f0;
-	border: 0 none;
-	border-radius: 12px;
+	margin-top: 5rem;
 }
-.progress_area progress::-webkit-progress-value {
-	background: #43f15e;
-	border-radius: 12px;
-	transition: all 0.3s;
-}
-.progress_area .tooltip {
-	display: flex;
-	position: absolute;
-	bottom: 100%;
-	align-items: center;
-	justify-content: center;
-	margin-top: 0;
-	margin-bottom: 10px;
-	padding: 6px 8px;
-	background: #000;
-	border-radius: 4px;
-	color: #fff;
-	font-size: 13px;
-	line-height: 1;
-	white-space: nowrap;
-	opacity: 0;
-	transform: translateX(-50%);
-}
-.progress_area .tooltip::before {
+.imgarea img {
 	display: block;
-	content: '';
-	position: absolute;
-	top: 100%;
-	left: 50%;
-	margin-left: v-bind(-pointPos + 'px');
-	transform: translateX(-50%);
-	border-top: 6px solid #000;
-	border-left: 4px solid transparent;
-	border-right: 4px solid transparent;
-}
-.progress_area span {
-	display: block;
-	margin: 4px 0;
-	color: #787878;
-	font-size: 13px;
-	text-align: right;
-}
-.progress_area .tooltip.on {
-	opacity: 1;
-	transition: opacity 0.3s;
-}
-.progress_area progress::-webkit-progress-value {
-	transition: all 0.3s;
+	width: 100%;
 }
 
-/*금액변경*/
-.change_price {
-	display: flex;
-	align-items: center;
-	margin-top: 1rem;
+.imgarea.heart {
+	clip-path: path('M 40 120 A 50 50 0 1 1 240 120 L 240 120 A 50 50 0 1 1 440 120 Q 440 200 240 440 Q 40 200 40 120 Z');
 }
-.change_price input {
-	width: calc(100% - 4.5rem);
-	margin-right: 0.5rem;
-	border: 1px solid #f0f0f0;
-	height: 2.5rem;
-	border-radius: 0.3rem;
-	box-sizing: border-box;
-	padding: 0.5rem;
-	font-size: 0.9rem;
-	text-align: right;
+.imgarea.clover {
+	/*호 4개 직선 3개*/
+	clip-path: path(
+		'M 200 200 A 100 100 0 1 1 280 200 A 100 100 0 1 1 280 360 L 320 480 L 160 480 L 200 360 A 100 100 0 1 1 200 200 Z'
+	);
 }
-.change_price input:focus,
-.change_price input:active {
-	outline-color: #555;
+.imgarea.spade {
+	/*호 4개 직선 3개*/
+	clip-path: path(
+		'M 240 40 Q 320 160 440 240 A 40 40 0 1 1 280 360 L 320 480 L 160 480 L 200 360 A 50 50 0 1 1 40 240 Q 160 160 240 40 Z'
+	);
 }
-.change_price p {
-	font-size: 0.9rem;
-	width: 1rem;
+.imgarea.diamond {
+	clip-path: polygon(50% 0, 90% 50%, 50% 100%, 10% 50%);
 }
-.change_price button {
-	width: 4rem;
-	border: none;
-	height: 2.5rem;
-	font-size: 0.9rem;
-	color: #fff;
-	padding: 0.5rem;
-	border-radius: 0.3rem;
-	cursor: pointer;
-	background: #555;
+.imgarea.shape01 {
+	clip-path: polygon(25% 0, 100% 0, 100% 75%, 75% 100%, 0% 100%, 0% 25%);
+}
+.imgarea.shape02 {
+	clip-path: path('M 0 120 Q 120 120 120 0 L 480 0 L 480 360 Q 360 360 360 480 L 0 480 L 0 120 Z');
 }
 </style>
