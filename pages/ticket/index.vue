@@ -169,6 +169,7 @@ const tickets = reactive(
         display: flex;
         .ticket-visual-area {
           height: 400px;
+          flex: 1;
           &::before {
             width: 1px;
             height: calc(100% - var(--gap));
