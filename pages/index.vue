@@ -1,58 +1,105 @@
 <script setup>
 const shape = reactive({
-  heart: {
-    path: "M 200,350 C -200,90 200,-100 200,150 C  200,-100 600,90 200,350 Z",
-  },
-  diamond: {
-    path: "M 30,200 L 200,100 L 370,200 L 200,300 Z",
-  },
-  spade: {
-    path: "M 150,400 L 250,400 L 200,300 Z M 200,300 C 200,300 500,400 200,50 Z M 200,300 C 200,300 -100,400 200,50 Z",
-  },
-  clover: {
-    path: "M 150,400 L 250,400 L 200,200 Z M 120 250 m -50, 0 a 50,50 0 1,0 150,0 a 50,50 0 1,0 -150,0 Z M 220 250 m -50, 0 a 50,50 0 1,0 150,0 a 50,50 0 1,0 -150,0 Z M 170 160 m -50, 0 a 50,50 0 1,0 150,0 a 50,50 0 1,0 -150,0",
-  },
-  customShape1: {
-    path: "M 50,50 L 250, 50 S 240,100 300, 90 L 300 300 L 100,300 S 100,240 50,280 L 50 280 Z ",
-  },
-  customShape2: {
-    path: "M 50,50 L 250, 50 L 300,90 L 300 300 L 100,300  L 50 280 Z ",
-  },
+  // path: "M 10,10 L 490,10 L 490,490 L 10,490 Z",
+  path: `M 0,0 L 500,0 L500,300, L0,500 Z`,
 });
 
-const currentShape = ref("customShape2");
+const responsiveRef = ref(null);
+const objTest = ref({});
+onMounted(() => {
+  nextTick(() => {
+    calc();
+    console.log("objTest", objTest.value);
+  });
 
-const changeShapeHandler = (keyValue) => (currentShape.value = keyValue);
+  window.addEventListener("resize", call());
+});
+const call = () => {
+  console.log("ss");
+};
+const calc = () => {
+  console.log("responsiveRef", responsiveRef);
+  let width = responsiveRef?.value?.offsetWidth;
+  let height = responsiveRef?.value?.offsetHeight;
+  console.log("width", width);
+  console.log("height", height);
+  return (objTest.value = { width: width, height: height });
+};
 </script>
 
 <template>
-  <!-- 하트, 클로버, 스페이드, 다이아몬드 + 이미지의 두 모양의 버튼을 만든다. -->
-  <section class="svg-wrap">
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
-      <!-- 클리핑 모양 표시 border -->
-      <g style="filter: drop-shadow(-20px 15px 2px black)">
-        <path :d="shape[currentShape].path" fill="black" stroke-width="2" />
-      </g>
-      <defs>
-        <clipPath id="clip_shape">
-          <!-- 클리핑 -->
-          <path :d="shape[currentShape].path" />
-        </clipPath>
-      </defs>
-      <!-- 클리핑을 적용할 이미지 -->
-      <image href="/img/sss.jpg" width="100%" style="clip-path: url(#clip_shape)" />
-    </svg>
-  </section>
+  <div class="wrap">
+    <p>ticket</p>
 
-  <section class="buttons-wrap">
-    <button v-for="(item, index) in shape" :key="index" type="button" @click="changeShapeHandler(index)">{{ index }}</button>
-  </section>
+    <section class="svg-wrap">
+      <div class="left" ref="responsiveRef">
+        <svg xmlns="http://www.w3.org/2000/svg" class="svg">
+          <g style="filter: drop-shadow(-20px 15px 2px black)">
+            <path :d="`M 0,0 L ${objTest?.width},0 L ${objTest?.width},${objTest?.height} L 0,${objTest?.height} Z`" fill="black" stroke-width="2" />
+          </g>
+          <defs>
+            <clipPath id="clip_shape">
+              <path d="`M 0,0 L 500,0 L500,300, L0,500 Z`" />
+            </clipPath>
+          </defs>
+          <!-- <image href="/img/sss.jpg" width="100%" style="clip-path: url(#clip_shape)" /> -->
+        </svg>
+        <div class="img_box">이미지영역</div>
+      </div>
+      <div class="right">2</div>
+    </section>
+  </div>
 </template>
 
-<style scoped>
-svg {
+<style>
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
   width: 100%;
   height: 100%;
-  border: 1px solid blue;
+}
+body {
+  border: 20px solid green;
+}
+p {
+  margin: 0;
+}
+.wrap {
+  background: blue;
+}
+
+.svg {
+  flex: 1;
+  width: 100%;
+  height: 100%;
+  border: 5px solid red;
+}
+.left {
+  position: relative;
+  flex: 1;
+  background: orange;
+}
+
+.right {
+  flex: 1;
+  background: green;
+}
+.img_box {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 200px;
+  height: 100px;
+  background: powderblue;
+}
+.svg-wrap {
+  display: flex;
+  width: 100%;
+  height: 300px;
+  border: 1px solid black;
 }
 </style>
