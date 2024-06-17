@@ -166,6 +166,7 @@ main {
   margin: 3rem 0;
   display: flex;
   cursor: pointer;
+  filter: drop-shadow(0 0 0.5rem rgba(0, 0, 0, 0.2));
 }
 .ticket_info{
   display:flex;
