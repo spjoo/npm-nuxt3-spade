@@ -80,7 +80,6 @@ const checkTicket = () => {
       const height = ref.clientHeight;
 
       if (isVertical) {
-        console.log(width - 1)
         verticalPath.value = createPath(width, height, edge, false);
         verticalInnerPath.value = createPath(width - 2, height-2, edge, false);
       } else if (isHorizontal) {
@@ -127,7 +126,7 @@ onUnmounted(() => {
 <template>
 	<main id="main">
 		<div class="ticket_area">
-      <div v-for="(item, index) in ticketList" :key="item.id" class="ticket" :class="item.type" @click="ticketDown(item)">
+      <div v-for="(item) in ticketList" :key="item.id" class="ticket" :class="item.type" @click="ticketDown(item)">
         <div class="ticket_info" :class="item.type" ref="ticketInfoRefs" >
           <div>
             <img src="@/assets/img/logo01.png" class="logo" alt="로고" />
@@ -163,10 +162,11 @@ main {
   margin:0 auto;
 }
 .ticket{
-  margin: 3rem 0;
+  margin: 3rem auto;
   display: flex;
   cursor: pointer;
   filter: drop-shadow(0 0 0.5rem rgba(0, 0, 0, 0.2));
+  max-width: 70rem;
 }
 .ticket_info{
   display:flex;
@@ -174,6 +174,8 @@ main {
   justify-content:center;
   background:#e6e6e6;
   position:relative;
+  padding: 3rem;
+  box-sizing: border-box;
 }
 .ticket_info:before{
   content: '';
