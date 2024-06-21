@@ -160,6 +160,8 @@ main {
   padding:2rem;
   width:100%;
   margin:0 auto;
+  min-width:35rem;
+  overflow-x:hidden;
 }
 .ticket{
   margin: 3rem auto;
@@ -167,6 +169,7 @@ main {
   cursor: pointer;
   filter: drop-shadow(0 0 0.5rem rgba(0, 0, 0, 0.2));
   max-width: 70rem;
+  min-width: calc(35rem - 8rem);
 }
 .ticket_info{
   display:flex;
