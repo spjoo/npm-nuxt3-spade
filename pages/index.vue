@@ -1,105 +1,80 @@
 <script setup>
-const shape = reactive({
-  // path: "M 10,10 L 490,10 L 490,490 L 10,490 Z",
-  path: `M 0,0 L 500,0 L500,300, L0,500 Z`,
-});
+import { ref, reactive, onMounted, onUpdated } from "vue";
+const horizonRef = ref(null);
 
-const responsiveRef = ref(null);
-const objTest = ref({});
+const getCalc = (horizon) => {
+  const width = horizon?.value.clientWidth;
+  const height = horizon?.value.clientHeight;
+  console.log(width);
+
+  const horizonPath = `m 0 0 L ${width - 40} 0 L ${width} 40 L ${width} ${height - 40} L ${width - 40} ${height} L 0 ${height} Z`;
+  horizon.value.style.background = "orange";
+  horizon.value.style.clipPath = `path("${horizonPath}")`;
+
+  return { width, height };
+};
 onMounted(() => {
-  nextTick(() => {
-    calc();
-    console.log("objTest", objTest.value);
+  getCalc(horizonRef);
+  window.addEventListener("resize", () => {
+    nextTick(() => {
+      getCalc(horizonRef);
+    });
   });
-
-  window.addEventListener("resize", call());
 });
-const call = () => {
-  console.log("ss");
-};
-const calc = () => {
-  console.log("responsiveRef", responsiveRef);
-  let width = responsiveRef?.value?.offsetWidth;
-  let height = responsiveRef?.value?.offsetHeight;
-  console.log("width", width);
-  console.log("height", height);
-  return (objTest.value = { width: width, height: height });
-};
+
+onUpdated(() => {
+  nextTick(() => {
+    getCalc(horizon);
+  });
+});
 </script>
 
 <template>
-  <div class="wrap">
-    <p>ticket</p>
-
-    <section class="svg-wrap">
-      <div class="left" ref="responsiveRef">
-        <svg xmlns="http://www.w3.org/2000/svg" class="svg">
-          <g style="filter: drop-shadow(-20px 15px 2px black)">
-            <path :d="`M 0,0 L ${objTest?.width},0 L ${objTest?.width},${objTest?.height} L 0,${objTest?.height} Z`" fill="black" stroke-width="2" />
-          </g>
-          <defs>
-            <clipPath id="clip_shape">
-              <path d="`M 0,0 L 500,0 L500,300, L0,500 Z`" />
-            </clipPath>
-          </defs>
-          <!-- <image href="/img/sss.jpg" width="100%" style="clip-path: url(#clip_shape)" /> -->
-        </svg>
-        <div class="img_box">이미지영역</div>
+  <main>
+    <div class="ticket-wrap">
+      <div ref="horizonRef" class="flex-box left">
+        <span>50% 할인</span>
       </div>
-      <div class="right">2</div>
-    </section>
-  </div>
+      <div class="flex-box right">
+        <button>다운 완료</button>
+      </div>
+    </div>
+  </main>
 </template>
 
-<style>
-* {
+<style scoped>
+main {
   box-sizing: border-box;
-}
-
-html,
-body {
   width: 100%;
   height: 100%;
 }
-body {
-  border: 20px solid green;
-}
-p {
-  margin: 0;
-}
-.wrap {
-  background: blue;
-}
-
-.svg {
-  flex: 1;
-  width: 100%;
-  height: 100%;
-  border: 5px solid red;
-}
-.left {
-  position: relative;
-  flex: 1;
-  background: orange;
-}
-
-.right {
-  flex: 1;
-  background: green;
-}
-.img_box {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 200px;
-  height: 100px;
-  background: powderblue;
-}
-.svg-wrap {
-  display: flex;
+.ticket-wrap {
+  padding: 10px;
   width: 100%;
   height: 300px;
-  border: 1px solid black;
+  display: flex;
+  filter: drop-shadow(-1px 8px 12px rgba(50, 50, 0, 0.5));
+}
+.flex-box {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.left {
+  flex: 1;
+  position: relative;
+}
+.left:after {
+  content: "";
+  width: 1px;
+  height: 100%;
+  border-right: 1px dotted blue;
+  position: absolute;
+  right: 0;
+}
+.right {
+  background: red;
+  width: 80px;
+  clip-path: path("m 40 0 L 0 40 L 0 240 L 60 300 L 80 300 L 80 0 Z");
 }
 </style>

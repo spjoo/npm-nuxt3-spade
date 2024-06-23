@@ -12,9 +12,21 @@ provide("modalState", {
 });
 </script>
 <template>
-  <div>
-    <NuxtLayout>
-      <NuxtPage />
-    </NuxtLayout>
+  <div class="container">
+    <NuxtPage />
   </div>
 </template>
+
+<style>
+* {
+  box-sizing: border-box;
+}
+html,
+body,
+#__nuxt,
+.container {
+  width: 100%;
+  height: 100%;
+  box-sizing: border-box;
+}
+</style>
