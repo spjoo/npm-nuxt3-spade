@@ -17,6 +17,10 @@
         <p>6월 1주차</p>
         <nuxt-link to="/ticket/">반응형 티켓 및 그림자</nuxt-link>
       </li>
+      <li>
+        <p>6월 4주차</p>
+        <nuxt-link to="/ranking/">랭킹</nuxt-link>
+      </li>
     </ul>
   </main>
 </template>
