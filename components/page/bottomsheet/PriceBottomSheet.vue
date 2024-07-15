@@ -59,12 +59,12 @@ const calcPos = async () => {
 	// 왼쪽
 	if (currentProgressWidth < tipWidth / 2) {
 		tipPos.value = Math.floor(currentProgressWidth - tipWidth / 2);
-		arrowPos.value = tipPos.value < 4 + 6 ? tipPos.value + 4 + 6 : tipPos.value;
+		arrowPos.value = tipPos.value + 4 + 6 < 0 ? tipPos.value + 4 + 6 : tipPos.value;
 	}
 	// 오르쪽
 	else if (progressWidth.value - currentProgressWidth < tipWidth / 2) {
 		tipPos.value = Math.floor(tipWidth / 2 - (progressWidth.value - currentProgressWidth));
-		arrowPos.value = tipPos.value > 4 + 6 ? tipPos.value - 4 - 6 : tipPos.value;
+		arrowPos.value = tipWidth / 2 - tipPos.value < 4 + 6 ? tipPos.value - 4 - 6 : tipPos.value;
 	}
 };
 
