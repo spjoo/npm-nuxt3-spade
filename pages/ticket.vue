@@ -22,7 +22,7 @@
           ref="downBtn"
           class="down-btn"
           @click="clickTicket(item)"
-          :class="{ completion: item.completion }"
+          :disabled="item.completion"
         >
           {{ item.completion ? "완료" : "다운로드" }}
         </button>
