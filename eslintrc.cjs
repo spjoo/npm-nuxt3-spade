@@ -20,10 +20,11 @@ module.exports = {
   ],
   "rules": {
     "import/extensions": "off",
-    "no-console": "error",
+    "no-console": "off",
     "no-debug": "off",
     "no-unused-vars": "warn",
     "prefer-const": "warn",
+    "vue/multi-word-component-names": "off",
     "prettier/prettier": [
       "error",
       {
